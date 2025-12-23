@@ -126,9 +126,7 @@ function getRowItems(row: Row<UMKM>) {
         navigateTo(`/dashboard/umkm/${row.original.id}`);
       },
     },
-    {
-      type: "separator",
-    },
+
     {
       label: "Kirim Reminder WA",
       icon: "i-simple-icons-whatsapp",
@@ -153,10 +151,23 @@ function getRowItems(row: Row<UMKM>) {
       label: "Copy Nomor WhatsApp",
       icon: "i-heroicons-clipboard-document",
       onSelect() {
-        navigator.clipboard.writeText(row.original.no_wa);
         toast.add({
           title: "Nomor disalin",
-          description: "Nomor WhatsApp berhasil disalin",
+          description: `Nomor WhatsApp berhasil disalin`,
+          color: "success",
+        });
+        navigator.clipboard.writeText(row.original.no_wa);
+      },
+    },
+    {
+      label: "Salin Template Pesan WA",
+      icon: "i-heroicons-clipboard-document",
+      onSelect() {
+        const template = `Halo ${row.original.nama_pemilik},\n\nBerikut ringkasan mingguan usaha *${row.original.nama_usaha}*:\n- Uang masuk: ...\n- Uang keluar: ...\n- Untung/Rugi: ...\n\nSalam,\nTim Pendampingan UMKM`;
+        navigator.clipboard.writeText(template);
+        toast.add({
+          title: "Template disalin",
+          description: "Template pesan WA berhasil disalin ke clipboard",
           color: "success",
         });
       },
