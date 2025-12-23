@@ -25,6 +25,14 @@ const links = [
       },
     },
     {
+      label: "Laporan",
+      icon: "i-lucide-file-text",
+      to: "/dashboard/laporan",
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
       label: "Settings",
       to: "/dashboard/settings",
       icon: "i-lucide-settings",

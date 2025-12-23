@@ -1,60 +1,59 @@
-# Nuxt Starter Template
+# Layanan Pendampingan Keuangan UMKM via WhatsApp
 
-[![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+Aplikasi dashboard admin untuk layanan pendampingan keuangan UMKM kecil (warung, laundry, barber, jahit) yang gaptek app.
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+## Fitur Utama
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+- Kelola data UMKM (CRUD)
+- Input laporan keuangan mingguan per klien
+- Hitung untung/rugi otomatis
+- Beri saran praktis
+- Kirim ringkasan via WhatsApp
+- Dashboard overview: total klien, status, revenue mingguan, dll
 
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-  </picture>
-</a>
+## Tech Stack
 
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
+- Nuxt 3
+- Nuxt UI[](https://ui.nuxt.com)
+- Supabase (nanti untuk database)
+- Deploy: Vercel
 
-## Quick Start
+## Struktur Halaman
 
-```bash [Terminal]
-npm create nuxt@latest -- -t github:nuxt-ui-templates/starter
-```
+- `/dashboard` → Home / Overview (stats + recent activity)
+- `/dashboard/customers` → Daftar UMKM + CRUD
+- `/dashboard/laporan/input` → Form input laporan mingguan
+- `/dashboard/umkm/[id]` → Detail + riwayat laporan per UMKM
 
-## Deploy your own
+## Catatan untuk Developer
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
+- Gunakan komponen Nuxt UI sebanyak mungkin: UCard, UStats, UTable, UBadge, dll
+- Desain dark mode friendly
+- Prioritas sekarang: tampilan dashboard yang clean & informatif
+- Data sementara pakai ref() dummy, nanti ganti Supabase
 
-## Setup
+---
 
-Make sure to install the dependencies:
+## Setup & Database (Supabase)
 
-```bash
-pnpm install
-```
+1. Tambahkan env vars (`.env` atau di Vercel):
 
-## Development Server
+   - `SUPABASE_URL` (contoh: https://your-project.supabase.co)
+   - `SUPABASE_ANON_KEY` (public anon key)
+   - `SUPABASE_SERVICE_ROLE_KEY` (optional, server-side only)
 
-Start the development server on `http://localhost:3000`:
+2. Jalankan SQL migration di `db/migrations/` lewat Supabase SQL Editor:
 
-```bash
-pnpm dev
-```
+   - `001_create_umkm_profiles_and_weekly_reports.sql` — buat tabel `umkm_profiles` dan `weekly_reports`.
+   - `002_seed_sample_data.sql` — (opsional) isi data contoh untuk pengembangan.
 
-## Production
+3. Catatan schema:
 
-Build the application for production:
+   - `weekly_reports.untung_rugi` adalah kolom `GENERATED` (Postgres). Jika versi Postgres Anda tidak mendukung kolom `GENERATED`, hitung `untung_rugi` di aplikasi atau tambahkan trigger.
+   - `user_id` dan `created_by` mengacu ke `auth.users(id)` (Supabase Auth); sesuaikan bila tidak memakai Supabase Auth.
 
-```bash
-pnpm build
-```
+4. Setelah SQL dijalankan, restart dev server dan pastikan `SUPABASE_URL` dan keys sudah tersedia.
 
-Locally preview production build:
+---
 
-```bash
-pnpm preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Jika mau, saya bisa juga menambahkan skrip untuk menjalankan SQL secara otomatis (CI) atau membuat migrasi yang kompatibel dengan "pg-migrations"—katakan jika Anda ingin itu ditambahkan.
