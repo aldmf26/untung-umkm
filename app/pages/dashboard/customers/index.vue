@@ -21,8 +21,8 @@ const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const UCheckbox = resolveComponent("UCheckbox");
-const CustomersEditModal = resolveComponent('CustomersEditModal')
-const CustomersDeleteModal = resolveComponent('CustomersDeleteModal')
+const CustomersEditModal = resolveComponent("CustomersEditModal");
+const CustomersDeleteModal = resolveComponent("CustomersDeleteModal");
 
 const toast = useToast();
 const table = useTemplateRef("table");
@@ -86,14 +86,18 @@ async function handleDeleteSelected() {
 
 // handle delete emitted from single-row DeleteModal
 function handleDeleted(ids?: string[]) {
-  toast.add({ title: 'UMKM dihapus', description: `${ids?.length || 1} item dihapus`, color: 'success' })
-  refreshUmkm()
+  toast.add({
+    title: "UMKM dihapus",
+    description: `${ids?.length || 1} item dihapus`,
+    color: "success",
+  });
+  refreshUmkm();
 }
 
 // handle updated emitted from EditModal
 function handleUpdated() {
-  toast.add({ title: 'UMKM diperbarui', color: 'success' })
-  refreshUmkm()
+  toast.add({ title: "UMKM diperbarui", color: "success" });
+  refreshUmkm();
 }
 
 const status = ref("success");
@@ -120,13 +124,6 @@ function getRowItems(row: Row<UMKM>) {
       icon: "i-heroicons-document-text",
       onSelect() {
         navigateTo(`/dashboard/umkm/${row.original.id}`);
-      },
-    },
-    {
-      label: "Edit Profil UMKM",
-      icon: "i-heroicons-pencil-square",
-      onSelect() {
-        navigateTo(`/dashboard/umkm/${row.original.id}/edit`);
       },
     },
     {
@@ -161,21 +158,6 @@ function getRowItems(row: Row<UMKM>) {
           title: "Nomor disalin",
           description: "Nomor WhatsApp berhasil disalin",
           color: "success",
-        });
-      },
-    },
-    {
-      type: "separator",
-    },
-    {
-      label: "Hapus UMKM",
-      icon: "i-heroicons-trash",
-      color: "error",
-      onSelect() {
-        toast.add({
-          title: "UMKM dihapus",
-          description: `${row.original.nama_usaha} berhasil dihapus`,
-          color: "error",
         });
       },
     },
@@ -301,17 +283,7 @@ const columns: TableColumn<UMKM>[] = [
     id: "actions",
     header: "Aksi",
     cell: ({ row }) => {
-      return h("div", { class: "flex items-center gap-2 justify-end" }, [
-        h(UButton, {
-          label: "Input Laporan",
-          icon: "i-heroicons-document-plus",
-          color: "success",
-          variant: "soft",
-          size: "xs",
-          onClick: () => {
-            navigateTo(`/dashboard/laporan/input?umkm=${row.original.id}`);
-          },
-        }),
+      return h("div", { class: "flex items-center gap-2" }, [
         // Edit modal trigger button
         h(
           CustomersEditModal,
@@ -327,7 +299,10 @@ const columns: TableColumn<UMKM>[] = [
         // Delete modal for single row
         h(
           CustomersDeleteModal,
-          { ids: [row.original.id], onDeleted: (ids: string[]) => handleDeleted(ids) },
+          {
+            ids: [row.original.id],
+            onDeleted: (ids: string[]) => handleDeleted(ids),
+          },
           () =>
             h(UButton, {
               icon: "i-heroicons-trash",
