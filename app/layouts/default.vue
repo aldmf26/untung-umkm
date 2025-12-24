@@ -1,23 +1,11 @@
 <template>
   <UHeader>
     <template #title>
-      <Logo class="h-6 w-auto" />
-      <h1>UMKM Dashboard</h1>
+      <AppLogo />
     </template>
 
     <template #right>
       <UColorModeButton />
-
-      <UTooltip text="Open on Instagram" :kbds="['meta', 'G']">
-        <UButton
-          color="neutral"
-          variant="ghost"
-          to="https://instagram.com/@aldiiimf"
-          target="_blank"
-          icon="i-simple-icons-instagram"
-          aria-label="Instagram"
-        />
-      </UTooltip>
     </template>
   </UHeader>
   <UContainer

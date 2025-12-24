@@ -44,9 +44,6 @@ useHead({
         >
           Login
         </h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          Masuk untuk mengakses fitur Pengukuran Badan
-        </p>
       </div>
     </template>
 
