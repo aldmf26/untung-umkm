@@ -10,18 +10,10 @@ definePageMeta({
 const links = [
   [
     {
-      label: "General",
-      icon: "i-lucide-user",
+      label: "Security",
+      icon: "i-lucide-lock",
       to: "/dashboard/settings",
       exact: true,
-    },
-  ],
-  [
-    {
-      label: "Documentation",
-      icon: "i-lucide-book-open",
-      to: "https://ui.nuxt.com/docs/getting-started/installation/nuxt",
-      target: "_blank",
     },
   ],
 ] satisfies NavigationMenuItem[][];

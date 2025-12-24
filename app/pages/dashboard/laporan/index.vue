@@ -236,7 +236,7 @@ const columns: TableColumn<Report>[] = [
           size: "xs",
           variant: "ghost",
           onClick: () => router.push(`/dashboard/umkm/${row.original.umkm_id}`),
-        }),
+        },{default: 'Lihat'}),
         h(UButton, {
           icon: "i-heroicons-trash",
           color: "error",

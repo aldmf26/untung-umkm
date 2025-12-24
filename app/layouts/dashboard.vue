@@ -48,7 +48,7 @@ const links = [
       type: "trigger",
       children: [
         {
-          label: "General",
+          label: "Security",
           to: "/dashboard/settings",
           exact: true,
           onSelect: () => {
