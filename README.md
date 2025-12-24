@@ -1,6 +1,22 @@
 # Layanan Pendampingan Keuangan UMKM via WhatsApp
 
-Aplikasi dashboard admin untuk layanan pendampingan keuangan UMKM kecil (warung, laundry, barber, jahit) yang gaptek app.
+# Laporku
+
+Laporku adalah aplikasi pendampingan keuangan untuk UMKM yang membantu pemilik
+usaha memahami kondisi bisnisnya tanpa harus membaca laporan yang rumit.
+
+Melalui Laporku, UMKM akan menerima:
+- Ringkasan untung dan rugi mingguan
+- Total pemasukan dan pengeluaran
+- Analisis sederhana performa usaha
+- Saran praktis untuk meningkatkan keuntungan
+
+Semua laporan dikirim langsung melalui WhatsApp, sehingga mudah dipahami dan
+tidak membutuhkan aplikasi tambahan.
+
+Laporku dirancang untuk UMKM Indonesia yang ingin fokus berjualan tanpa repot
+mengelola laporan keuangan yang kompleks.
+
 
 ## Fitur Utama
 
@@ -10,6 +26,11 @@ Aplikasi dashboard admin untuk layanan pendampingan keuangan UMKM kecil (warung,
 - Beri saran praktis
 - Kirim ringkasan via WhatsApp
 - Dashboard overview: total klien, status, revenue mingguan
+- 📊 Laporan keuangan mingguan
+- 💬 Notifikasi & laporan via WhatsApp
+- 📈 Analisis sederhana dan mudah dipahami
+- 💡 Saran bisnis praktis
+- 🧾 Riwayat laporan UMKM
 
 ## Tech Stack
 
