@@ -1,5 +1,64 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import gsap from "gsap";
+import { TextPlugin } from "gsap/TextPlugin";
+
+gsap.registerPlugin(TextPlugin);
+const chatUser = ref<HTMLElement | null>(null);
+const chatBot1 = ref<HTMLElement | null>(null);
+const chatBot2 = ref<HTMLElement | null>(null);
+const chatBot3 = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  window.addEventListener("mousemove", onMouseMove);
+
+  if (!chatUser.value || !chatBot1.value || !chatBot2.value || !chatBot3.value)
+    return;
+
+  gsap.set([chatUser.value, chatBot1.value, chatBot2.value, chatBot3.value], {
+    opacity: 0,
+    y: 12,
+  });
+
+  const tl = gsap.timeline({
+    repeat: -1,
+    repeatDelay: 1.5,
+  });
+
+  tl.to(chatUser.value, {
+    opacity: 1,
+    y: 0,
+    duration: 0.5,
+    text: {
+      value:
+        "Laporan minggu ini 👇:<br/>1–7 Januari<br/>Masuk: Rp3.500.000<br/>Keluar: Rp2.100.000",
+      delimiter: "",
+    },
+  })
+    .to(chatBot1.value, {
+      opacity: 1,
+      y: 0,
+      duration: 0.4,
+      delay: 0.6,
+    })
+    .to(chatBot2.value, {
+      opacity: 1,
+      y: 0,
+      duration: 0.4,
+      delay: 0.6,
+    })
+    .to(chatBot3.value, {
+      opacity: 1,
+      y: 0,
+      duration: 0.4,
+      delay: 0.6,
+    })
+    .to([chatUser.value, chatBot1.value, chatBot2.value, chatBot3.value], {
+      opacity: 0,
+      duration: 0.4,
+      delay: 2,
+    });
+});
 
 useHead({
   title: "Pendampingan Keuangan UMKM",
@@ -35,20 +94,7 @@ onBeforeUnmount(() => {
     class="relative min-h-screen overflow-hidden bg-background text-foreground"
   >
     <!-- Mouse reactive + animated background -->
-    <div
-      class="pointer-events-none absolute inset-0 -z-10 animate-gradient transition-all duration-300"
-      :style="{
-        background: `
-          radial-gradient(circle at ${mouseX}% ${mouseY}%,
-            rgba(16,185,129,0.25),
-            transparent 40%),
-          radial-gradient(circle at ${100 - mouseX}% ${100 - mouseY}%,
-            rgba(6,182,212,0.2),
-            transparent 45%)
-        `,
-      }"
-    />
-
+    <img src="/images/wa.webp" class="absolute opacity-25 lg:bottom-24 md:bottom-32" alt="" />
     <main class="max-w-4xl mx-auto px-6 pt-10 pb-20 text-center">
       <!-- HERO -->
       <Transition name="fade-up" appear>
@@ -66,12 +112,12 @@ onBeforeUnmount(() => {
             class="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.1]"
           >
             Kelola Untung Rugi <br />
-            <span class="text-primary">Lewat WhatsApp</span>
+            <span class="text-primary">Cukup Lewat WhatsApp</span>
           </h1>
 
           <p class="mt-6 text-lg text-muted max-w-2xl mx-auto leading-relaxed">
-            Dapatkan ringkasan performa bisnis dan saran praktis setiap minggu
-            tanpa perlu pusing baca grafik yang rumit.
+            Kirim data sederhana, dapat ringkasan dan saran bisnis setiap
+            minggu.
           </p>
 
           <div
@@ -84,10 +130,6 @@ onBeforeUnmount(() => {
             >
               Mulai Sekarang
             </UButton>
-
-            <UButton variant="ghost" size="xl" icon="i-heroicons-play-circle">
-              Lihat Demo
-            </UButton>
           </div>
         </section>
       </Transition>
@@ -96,39 +138,63 @@ onBeforeUnmount(() => {
       <Transition name="fade-up" appear>
         <section class="mt-16 relative flex justify-center">
           <div
-            class="relative z-10 w-full max-w-[500px] aspect-[16/10] bg-card rounded-2xl shadow-2xl border border-border overflow-hidden"
+            class="relative z-10 w-full max-w-[500px] md:min-h-[450px] min-h-[480px] rounded-2xl overflow-hidden bg-gradient-to-br from-background/90 to-background/70 backdrop-blur-md shadow-[0_30px_80px_-30px_RGBA(0,0,0,0.5)] border border-border/40 md:border-none"
           >
+            <!-- Header -->
             <div
-              class="absolute inset-0 bg-muted flex items-center justify-center"
+              class="flex items-center gap-3 px-4 py-3 border-b border-border/40 bg-background/70"
             >
-              <div class="text-center p-8">
-                <div
-                  class="w-16 h-16 bg-primary/15 rounded-full flex items-center justify-center mx-auto mb-4"
-                >
-                  <UIcon
-                    name="i-heroicons-chat-bubble-left-right"
-                    class="w-8 h-8 text-primary"
-                  />
-                </div>
-
-                <p class="text-sm font-medium text-muted italic">
-                  "Laporan Minggu Ini: Keuntungan Anda naik 12%!"
-                </p>
-
-                <div class="mt-4 flex gap-2 justify-center">
-                  <div class="h-2 w-24 bg-primary/30 rounded-full"></div>
-                  <div class="h-2 w-12 bg-primary/15 rounded-full"></div>
-                </div>
+              <div
+                class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold"
+              >
+                U
+              </div>
+              <div class="text-left leading-tight">
+                <div class="text-sm font-semibold">Laporku</div>
+                <div class="text-xs text-muted">via WhatsApp</div>
               </div>
             </div>
 
+            <!-- Chat Area -->
             <div
-              class="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent"
-            />
+              class="absolute inset-x-0 bottom-0 top-[56px] flex flex-col justify-end px-4 pb-4 space-y-3 text-sm"
+            >
+              <!-- User bubble -->
+              <div
+                ref="chatUser"
+                class="ml-auto max-w-[78%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-4 py-2 text-left leading-relaxed shadow-md shadow-primary/25"
+              ></div>
+
+              <!-- Bot bubble -->
+              <div
+                ref="chatBot1"
+                class="mr-auto max-w-[78%] rounded-2xl rounded-bl-sm bg-background/95 border border-border/40 px-4 py-2 text-left leading-relaxed shadow-sm"
+              >
+                📊 <b>Ringkasan Mingguan</b><br />
+                Untung: Rp1.400.000
+              </div>
+
+              <div
+                ref="chatBot2"
+                class="mr-auto max-w-[78%] rounded-2xl rounded-bl-sm bg-background/95 border border-border/40 px-4 py-2 text-left leading-relaxed shadow-sm"
+              >
+                ⚠️ <b>Perlu diperhatikan</b><br />
+                Biaya bahan baku meningkat minggu ini
+              </div>
+
+              <div
+                ref="chatBot3"
+                class="mr-auto max-w-[78%] rounded-2xl rounded-bl-sm bg-background/95 border border-border/40 px-4 py-2 text-left leading-relaxed shadow-sm"
+              >
+                💡 <b>Saran</b><br />
+                Cari supplier dengan harga lebih stabil
+              </div>
+            </div>
           </div>
 
+          <!-- Glow -->
           <div
-            class="absolute -top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/20 blur-[100px] -z-10 rounded-full"
+            class="absolute -top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/25 blur-[120px] -z-10 rounded-full"
           />
         </section>
       </Transition>
@@ -144,7 +210,7 @@ onBeforeUnmount(() => {
             </div>
             <h3 class="font-bold">Input Cepat</h3>
             <p class="text-sm text-muted">
-              Admin hanya butuh 5 menit untuk memperbarui data mingguan Anda.
+              Kirim pesan ke WhatsApp, kami proses.
             </p>
           </div>
 
@@ -158,10 +224,7 @@ onBeforeUnmount(() => {
               />
             </div>
             <h3 class="font-bold">Saran Praktis</h3>
-            <p class="text-sm text-muted">
-              Bukan sekadar angka, kami berikan langkah nyata untuk besarkan
-              bisnis.
-            </p>
+            <p class="text-sm text-muted">Bukan cuma laporan, tapi solusi.</p>
           </div>
 
           <div class="space-y-3 text-center md:text-left">
@@ -171,9 +234,7 @@ onBeforeUnmount(() => {
               <UIcon name="i-heroicons-gift" class="w-6 h-6" />
             </div>
             <h3 class="font-bold">Minggu Pertama Gratis</h3>
-            <p class="text-sm text-muted">
-              Coba layanan kami tanpa biaya di minggu pertama pendaftaran.
-            </p>
+            <p class="text-sm text-muted">Tidak cocok? Tidak perlu lanjut.</p>
           </div>
         </section>
       </Transition>
