@@ -25,6 +25,14 @@ const links = [
       },
     },
     {
+      label: "Payments",
+      icon: "i-lucide-credit-card",
+      to: "/dashboard/payments",
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
       label: "Laporan",
       icon: "i-lucide-file-text",
       to: "/dashboard/laporan",

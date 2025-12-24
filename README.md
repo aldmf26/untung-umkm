@@ -9,7 +9,7 @@ Aplikasi dashboard admin untuk layanan pendampingan keuangan UMKM kecil (warung,
 - Hitung untung/rugi otomatis
 - Beri saran praktis
 - Kirim ringkasan via WhatsApp
-- Dashboard overview: total klien, status, revenue mingguan, dll
+- Dashboard overview: total klien, status, revenue mingguan
 
 ## Tech Stack
 

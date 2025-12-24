@@ -63,6 +63,93 @@ const countInactive = computed(
 
 const recentJoins = computed(() => (umkmProfiles.value || []).slice(0, 5));
 
+// === PENDAPATAN DARI TABEL PAYMENTS ===
+const supabase = useSupabaseClient();
+
+// Pendapatan bulan ini
+const currentMonthStart = new Date(
+  new Date().getFullYear(),
+  new Date().getMonth(),
+  1
+);
+const currentMonthEnd = new Date(
+  new Date().getFullYear(),
+  new Date().getMonth() + 1,
+  0
+);
+
+const { data: paymentsThisMonth } = await useAsyncData(
+  "payments-this-month",
+  async () => {
+    const { data } = await supabase
+      .from("payments")
+      .select("jumlah")
+      .gte("tanggal_bayar", currentMonthStart.toISOString().split("T")[0])
+      .lte("tanggal_bayar", currentMonthEnd.toISOString().split("T")[0]);
+
+    return data || [];
+  }
+);
+
+const pendapatanBulanIni = computed(() => {
+  return (paymentsThisMonth.value || []).reduce(
+    (sum, p: any) => sum + (p.jumlah || 0),
+    0
+  );
+});
+
+// Total pendapatan all time
+const { data: allPayments } = await useAsyncData("payments-all", async () => {
+  const { data } = await supabase.from("payments").select("jumlah");
+  return data || [];
+});
+
+const totalPendapatan = computed(() => {
+  return (allPayments.value || []).reduce(
+    (sum, p: any) => sum + (p.jumlah || 0),
+    0
+  );
+});
+
+// Payments in selected range (for dashboard summary)
+const paymentsInRange = ref<any[]>([]);
+async function fetchPaymentsInRange() {
+  const start = range.value.start.toISOString().split("T")[0];
+  const end = range.value.end.toISOString().split("T")[0];
+  const { data } = await supabase
+    .from("payments")
+    .select("umkm_id, jumlah")
+    .gte("tanggal_bayar", start)
+    .lte("tanggal_bayar", end);
+  paymentsInRange.value = data || [];
+}
+
+watch(
+  range,
+  () => {
+    fetchPaymentsInRange();
+  },
+  { immediate: true }
+);
+
+const payingCustomersCount = computed(
+  () => new Set((paymentsInRange.value || []).map((p) => p.umkm_id)).size
+);
+const totalPaidInRange = computed(() =>
+  (paymentsInRange.value || []).reduce(
+    (s: number, p: any) => s + (p.jumlah || 0),
+    0
+  )
+);
+
+function fmtMoney(n: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(n);
+}
+
 function fmtDate(d?: string) {
   if (!d) return "-";
   return new Intl.DateTimeFormat("id-ID", {
@@ -74,7 +161,6 @@ function fmtDate(d?: string) {
 </script>
 
 <template>
-
   <UDashboardPanel id="home">
     <template #header>
       <UDashboardNavbar title="Home" :ui="{ right: 'gap-3' }">
@@ -91,9 +177,7 @@ function fmtDate(d?: string) {
 
       <UDashboardToolbar>
         <template #left>
-          <!-- NOTE: The `-ms-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
           <HomeDateRangePicker v-model="range" class="-ms-1" />
-
           <HomePeriodSelect v-model="period" :range="range" />
         </template>
       </UDashboardToolbar>
@@ -101,7 +185,7 @@ function fmtDate(d?: string) {
 
     <template #body>
       <div class="space-y-6">
-        <!-- Top summary cards (Nuxt UI style) -->
+        <!-- Top summary cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div
             class="p-4 bg-elevated rounded-lg border shadow-sm flex flex-col"
@@ -144,6 +228,33 @@ function fmtDate(d?: string) {
           </div>
         </div>
 
+        <!-- Pendapatan Cards (Baru Ditambahkan) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div
+            class="p-4 bg-elevated rounded-lg border shadow-sm flex flex-col"
+          >
+            <div class="text-sm text-muted">Pendapatan Bulan Ini</div>
+            <div class="mt-2 text-3xl font-bold text-green-600">
+              {{ fmtMoney(pendapatanBulanIni) }}
+            </div>
+            <div class="mt-2 text-sm text-muted">
+              Total pembayaran yang masuk bulan ini
+            </div>
+          </div>
+
+          <div
+            class="p-4 bg-elevated rounded-lg border shadow-sm flex flex-col"
+          >
+            <div class="text-sm text-muted">Total Pendapatan</div>
+            <div class="mt-2 text-3xl font-bold text-green-600">
+              {{ fmtMoney(totalPendapatan) }}
+            </div>
+            <div class="mt-2 text-sm text-muted">
+              Semua pembayaran sejak awal
+            </div>
+          </div>
+        </div>
+
         <!-- Chart + Recent Joins -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div
@@ -151,21 +262,39 @@ function fmtDate(d?: string) {
           >
             <div class="flex items-center justify-between mb-2">
               <div class="text-sm text-muted">Ringkasan Mingguan</div>
-              <div>
-                <RouterLink to="/dashboard/laporan">
-                  <UButton size="sm" variant="ghost">Lihat Laporan</UButton>
-                </RouterLink>
-              </div>
+              <NuxtLink to="/dashboard/payments">
+                <UButton size="sm" variant="ghost">Lihat Laporan</UButton>
+              </NuxtLink>
             </div>
 
             <HomeChart :period="period" :range="range" />
+
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="p-3 bg-elevated rounded-lg border">
+                <div class="text-sm text-muted">Klien bayar (range)</div>
+                <div class="mt-2 text-2xl font-bold">
+                  {{ payingCustomersCount }}
+                </div>
+                <div class="mt-1 text-sm text-muted">
+                  Jumlah UMKM yang menerima pembayaran dalam rentang terpilih
+                </div>
+              </div>
+
+              <div class="p-3 bg-elevated rounded-lg border">
+                <div class="text-sm text-muted">Total Pembayaran (range)</div>
+                <div class="mt-2 text-2xl font-bold text-green-600">
+                  {{ fmtMoney(totalPaidInRange) }}
+                </div>
+                <div class="mt-1 text-sm text-muted">
+                  Total nilai pembayaran pada rentang terpilih
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="p-4 bg-elevated rounded-lg border shadow-sm">
             <div class="flex items-center justify-between">
-              <div>
-                <div class="text-lg font-medium">Pendaftar Baru</div>
-              </div>
+              <div class="text-lg font-medium">Pendaftar Baru</div>
               <RouterLink to="/dashboard/customers">
                 <UButton size="sm" variant="ghost">Lihat Semua</UButton>
               </RouterLink>
@@ -191,7 +320,7 @@ function fmtDate(d?: string) {
                       <td class="py-2">{{ fmtDate(p.tanggal_join) }}</td>
                     </tr>
                     <tr v-if="(recentJoins || []).length === 0">
-                      <td class="py-4 text-muted" colspan="4">
+                      <td class="py-4 text-muted" colspan="2">
                         Belum ada UMKM.
                       </td>
                     </tr>
@@ -199,17 +328,6 @@ function fmtDate(d?: string) {
                 </table>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Stats & Sales -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div class="p-4 bg-elevated rounded-lg border shadow-sm">
-            <HomeStats :period="period" :range="range" />
-          </div>
-
-          <div class="p-4 bg-elevated rounded-lg border shadow-sm">
-            <HomeSales :period="period" :range="range" />
           </div>
         </div>
       </div>
