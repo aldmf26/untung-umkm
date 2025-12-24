@@ -11,6 +11,7 @@ const table = useTemplateRef("table");
 
 // Resolve UI components
 const UButton = resolveComponent("UButton");
+const UDropdownMenu = resolveComponent("UDropdownMenu");
 const UCheckbox = resolveComponent("UCheckbox");
 
 // Load payments + join nama UMKM
@@ -142,6 +143,23 @@ const handleDelete = async (row: Row<any>) => {
   refresh();
 };
 
+async function deleteSelectedPayments() {
+  const selected =
+    table?.value?.tableApi?.getFilteredSelectedRowModel().rows || [];
+  const ids = selected.map((r: any) => r.original.id);
+  if (!ids.length) return;
+  if (!confirm(`Hapus ${ids.length} pembayaran?`)) return;
+  const { error } = await supabase.from("payments").delete().in("id", ids);
+  if (error)
+    return toast.add({
+      title: "Gagal",
+      description: error.message,
+      color: "error",
+    });
+  toast.add({ title: `${ids.length} pembayaran dihapus`, color: "success" });
+  refresh();
+}
+
 const columnFilters = ref([]);
 const columnVisibility = ref({});
 const rowSelection = ref({});
@@ -176,7 +194,7 @@ const searchQuery = computed({
               icon="i-heroicons-plus"
               label="Catat Pembayaran"
             />
-            <UButton label="Refresh" variant="ghost" @click="refresh" />
+
           </div>
         </template>
       </UDashboardNavbar>
@@ -189,13 +207,47 @@ const searchQuery = computed({
         </template>
 
         <template #right>
-          <UInput
-            v-model="searchQuery"
-            placeholder="Cari UMKM..."
-            size="sm"
-            class="max-w-sm"
-            icon="i-heroicons-magnifying-glass"
-          />
+          <div class="flex items-center gap-2">
+            <UInput
+              v-model="searchQuery"
+              placeholder="Cari UMKM..."
+              size="sm"
+              class="max-w-sm"
+              icon="i-heroicons-magnifying-glass"
+            />
+            <UButton
+              v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
+              label="Hapus"
+              color="error"
+              variant="subtle"
+              icon="i-lucide-trash"
+              @click="deleteSelectedPayments"
+            >
+              <template #trailing>
+                <UKbd>{{
+                  table?.tableApi?.getFilteredSelectedRowModel().rows.length
+                }}</UKbd>
+              </template>
+            </UButton>
+
+            <UDropdownMenu
+              :items="table?.tableApi?.getAllColumns().filter((c: any) => c.getCanHide()).map((c: any) => ({
+                label: c.id === 'nama_usaha' ? 'UMKM' : c.id,
+                type: 'checkbox' as const,
+                checked: c.getIsVisible(),
+                onUpdateChecked: (v: boolean) => table?.tableApi?.getColumn(c.id)?.toggleVisibility(!!v),
+                onSelect: (e?: Event) => e?.preventDefault(),
+              }))"
+              :content="{ align: 'end' }"
+            >
+              <UButton
+                label="Kolom"
+                color="neutral"
+                variant="outline"
+                trailing-icon="i-heroicons-adjustments-horizontal"
+              />
+            </UDropdownMenu>
+          </div>
         </template>
       </UDashboardToolbar>
     </template>
@@ -220,22 +272,25 @@ const searchQuery = computed({
       </UTable>
 
       <div
-        class="flex items-center justify-between gap-3 border-t border-gray-200 dark:border-gray-800 pt-4 mt-4"
+        class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto"
       >
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="text-sm text-muted">
           {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }}
-          dari
-          {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} baris
-          dipilih
+          of
+          {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s)
+          selected.
         </div>
 
-        <UPagination
-          v-model="currentPage"
-          :total="table?.tableApi?.getFilteredRowModel().rows.length || 0"
-          :page-count="pagination.pageSize"
-          show-first
-          show-last
-        />
+        <div class="flex items-center gap-1.5">
+          <UPagination
+            :default-page="
+              (table?.tableApi?.getState().pagination.pageIndex || 0) + 1
+            "
+            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+            :total="table?.tableApi?.getFilteredRowModel().rows.length"
+            @update:page="(p: number) => table?.tableApi?.setPageIndex(p - 1)"
+          />
+        </div>
       </div>
     </template>
   </UDashboardPanel>

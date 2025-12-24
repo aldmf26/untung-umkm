@@ -9,6 +9,7 @@ const router = useRouter();
 
 // Resolve components used in renderers and toolbar
 const UButton = resolveComponent("UButton");
+const UDropdownMenu = resolveComponent("UDropdownMenu");
 const UInput = resolveComponent("UInput");
 const USelect = resolveComponent("USelect");
 const UCheckbox = resolveComponent("UCheckbox");
@@ -232,11 +233,16 @@ const columns: TableColumn<Report>[] = [
           },
           { default: () => "Edit" }
         ),
-        h(UButton, {
-          size: "xs",
-          variant: "ghost",
-          onClick: () => router.push(`/dashboard/umkm/${row.original.umkm_id}`),
-        },{default: 'Lihat'}),
+        h(
+          UButton,
+          {
+            size: "xs",
+            variant: "ghost",
+            onClick: () =>
+              router.push(`/dashboard/umkm/${row.original.umkm_id}`),
+          },
+          { default: "Lihat" }
+        ),
         h(UButton, {
           icon: "i-heroicons-trash",
           color: "error",
@@ -329,13 +335,18 @@ function goToInput(umkmId?: string) {
     <template #header>
       <UDashboardNavbar title="Laporan Mingguan">
         <template #right>
-          <UButton
-            label="Tambah Laporan"
-            color="success"
-            icon="i-heroicons-plus"
-            @click="() => goToInput()"
-          />
-          <UButton label="Refresh" variant="ghost" @click="refreshReports" />
+          <div class="flex items-center gap-2">
+            <UButton
+              label="Tambah Laporan"
+              color="success"
+              icon="i-heroicons-plus"
+              @click="() => goToInput()"
+            />
+
+            
+
+           
+          </div>
         </template>
       </UDashboardNavbar>
 
@@ -352,15 +363,38 @@ function goToInput(umkmId?: string) {
               size="sm"
               class="w-64"
             />
-            <USelect
-              v-model:number="pagination.pageSize"
-              :items="[
-                { label: '10', value: 10 },
-                { label: '25', value: 25 },
-                { label: '50', value: 50 },
-              ]"
-              size="sm"
-            />
+            <UButton
+              v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
+              label="Hapus"
+              color="error"
+              variant="subtle"
+              icon="i-lucide-trash"
+              @click="deleteSelectedReports"
+            >
+              <template #trailing>
+                <UKbd>{{
+                  table?.tableApi?.getFilteredSelectedRowModel().rows.length
+                }}</UKbd>
+              </template>
+            </UButton>
+
+            <UDropdownMenu
+              :items="table?.tableApi?.getAllColumns().filter((c: any) => c.getCanHide()).map((c: any) => ({
+                label: c.id === 'umkm' ? 'UMKM' : c.id,
+                type: 'checkbox' as const,
+                checked: c.getIsVisible(),
+                onUpdateChecked: (v: boolean) => table?.tableApi?.getColumn(c.id)?.toggleVisibility(!!v),
+                onSelect: (e?: Event) => e?.preventDefault(),
+              }))"
+              :content="{ align: 'end' }"
+            >
+              <UButton
+                label="Kolom"
+                color="neutral"
+                variant="outline"
+                trailing-icon="i-heroicons-adjustments-horizontal"
+              />
+            </UDropdownMenu>
           </div>
         </template>
       </UDashboardToolbar>
@@ -385,6 +419,28 @@ function goToInput(umkmId?: string) {
             </div>
           </template>
         </UTable>
+      </div>
+
+      <div
+        class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto"
+      >
+        <div class="text-sm text-muted">
+          {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }}
+          of
+          {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s)
+          selected.
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <UPagination
+            :default-page="
+              (table?.tableApi?.getState().pagination.pageIndex || 0) + 1
+            "
+            :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+            :total="table?.tableApi?.getFilteredRowModel().rows.length"
+            @update:page="(p: number) => table?.tableApi?.setPageIndex(p - 1)"
+          />
+        </div>
       </div>
     </template>
   </UDashboardPanel>
