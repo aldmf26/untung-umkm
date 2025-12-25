@@ -77,7 +77,6 @@ onMounted(() => {
     state.tanggal_bayar = new Date().toISOString().split("T")[0];
   }
 });
-
 const selectedUmkm = computed(() => {
   return umkmList.value?.find((u: any) => u.id === state.umkm_id);
 });

@@ -19,7 +19,7 @@ const links = [
     {
       label: "Data UMKM",
       icon: "i-lucide-users",
-      to: "/dashboard/customers",
+      to: "/dashboard/umkm",
       onSelect: () => {
         open.value = false;
       },
