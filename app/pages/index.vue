@@ -87,6 +87,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener("mousemove", onMouseMove);
 });
+
+
+const openWa = () => {
+  const no = "62895413111053";
+  const msg = encodeURIComponent(
+    "Halo, admin Laporku. Saya ingin bertanya tentang berlangganan atau ingin meminta bantuan lainnya. Bisa dibantu?"
+  );
+  window.open(`https://wa.me/${no}?text=${msg}`, "_blank");
+};
 </script>
 
 <template>
@@ -94,7 +103,11 @@ onBeforeUnmount(() => {
     class="relative min-h-screen overflow-hidden bg-background text-foreground"
   >
     <!-- Mouse reactive + animated background -->
-    <img src="/images/wa.webp" class="absolute opacity-25 lg:bottom-24 md:bottom-32" alt="" />
+    <img
+      src="/images/wa.webp"
+      class="absolute opacity-25 lg:bottom-24 md:bottom-32"
+      alt=""
+    />
     <main class="max-w-4xl mx-auto px-6 pt-10 pb-20 text-center">
       <!-- HERO -->
       <Transition name="fade-up" appear>
@@ -126,7 +139,9 @@ onBeforeUnmount(() => {
             <UButton
               size="xl"
               color="primary"
+              icon="i-simple-icons-whatsapp"
               class="px-8 shadow-lg transition-transform hover:scale-105"
+              @click="openWa"
             >
               Mulai Sekarang
             </UButton>
@@ -241,7 +256,7 @@ onBeforeUnmount(() => {
     </main>
 
     <footer class="py-10 border-t border-border text-center text-muted text-sm">
-      &copy; 2025 Pendampingan UMKM. All rights reserved.
+      &copy; 2025 Laporku. All rights reserved.
     </footer>
   </div>
 </template>

@@ -40,9 +40,9 @@ useHead({
     <template #header>
       <div class="text-center space-y-3">
         <h2
-          class="text-2xl sm:text-3xl font-bold from-pink-500 to-purple-600 bg-clip-text text-transparent"
+          class="text-2xl sm:text-3xl font-bold from-pink-500 to-purple-600 bg-clip-text"
         >
-          Login
+          Login Laporku
         </h2>
       </div>
     </template>

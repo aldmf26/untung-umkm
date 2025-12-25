@@ -41,6 +41,37 @@ const state = reactive<Partial<Schema>>({
   keterangan: undefined,
 });
 
+// Pilihan periode untuk field 'Periode (opsional)'
+const periodOptions = [
+  { label: "Mingguan", value: "Mingguan" },
+  { label: "Bulanan", value: "Bulanan" },
+];
+
+// Quick payment options (dinamis) — klik salah satu akan mengisi `jumlah` dan `periode`
+const quickOptions = [
+  { id: "q1", amount: 40000, periode: "Mingguan" },
+  { id: "q2", amount: 120000, periode: "Bulanan" },
+];
+
+const selectedQuick = computed(() => {
+  return quickOptions.find(
+    (q) => Number(state.jumlah) === q.amount && state.periode === q.periode
+  );
+});
+
+function selectQuickOption(q: { id: string; amount: number; periode: string }) {
+  state.jumlah = q.amount;
+  state.periode = q.periode;
+}
+
+function fmtMoney(n: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(n);
+}
+
 onMounted(() => {
   if (!state.tanggal_bayar) {
     state.tanggal_bayar = new Date().toISOString().split("T")[0];
@@ -49,6 +80,29 @@ onMounted(() => {
 
 const selectedUmkm = computed(() => {
   return umkmList.value?.find((u: any) => u.id === state.umkm_id);
+});
+
+// SelectItem mapping for USelectMenu: USelectMenu expects the selected item object
+interface SelectItem {
+  label: string;
+  value: string;
+  description?: string | null;
+}
+
+const selectedUmkmItem = computed<SelectItem | undefined>({
+  get() {
+    const id = state.umkm_id;
+    const u = umkmList.value?.find((x: any) => x.id === id);
+    if (!u) return undefined;
+    return {
+      label: `${u.nama_usaha} — ${u.nama_pemilik}`,
+      value: u.id,
+      description: u.no_wa || undefined,
+    };
+  },
+  set(v) {
+    state.umkm_id = (v as any)?.value;
+  },
 });
 
 // Submit
@@ -138,8 +192,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               </template>
 
               <UFormField label="UMKM" name="umkm_id" required>
-                <USelect
-                  v-model="state.umkm_id"
+                <USelectMenu
+                  v-model="selectedUmkmItem"
                   :items="
                     umkmList?.map((u) => ({
                       label: `${(u as any).nama_usaha} — ${(u as any).nama_pemilik}`,
@@ -181,6 +235,30 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                       <span class="text-gray-500 dark:text-gray-400">Rp</span>
                     </template>
                   </UInput>
+
+                  <!-- Quick options (klik untuk isi jumlah & periode) -->
+                  <div class="mt-2 flex items-center gap-2">
+                    <UText variant="muted" class="text-sm">Cepat:</UText>
+                    <div class="flex gap-2">
+                      <UButton
+                        v-for="q in quickOptions"
+                        :key="q.id"
+                        size="sm"
+                        :color="
+                          selectedQuick?.id === q.id ? 'success' : 'neutral'
+                        "
+                        variant="outline"
+                        @click.prevent="selectQuickOption(q)"
+                      >
+                        <span class="font-medium">{{
+                          fmtMoney(q.amount)
+                        }}</span>
+                        <span class="text-xs text-muted ml-2">{{
+                          q.periode
+                        }}</span>
+                      </UButton>
+                    </div>
+                  </div>
                 </UFormField>
 
                 <UFormField label="Tanggal Bayar" name="tanggal_bayar" required>
@@ -192,9 +270,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 </UFormField>
 
                 <UFormField label="Periode (opsional)" name="periode">
-                  <UInput
+                  <USelect
                     v-model="state.periode"
-                    placeholder="Bulan Desember 2024"
+                    :items="periodOptions"
+                    placeholder="Pilih periode"
                     class="w-full"
                   />
                 </UFormField>

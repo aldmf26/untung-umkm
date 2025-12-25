@@ -53,6 +53,31 @@ const selectedUmkm = computed(() => {
   return umkmList.value?.find((u) => u.id === state.umkm_id);
 });
 
+// SelectItem mapping for USelectMenu: allows mapping between {label,value,description} and state.umkm_id (string)
+interface SelectItem {
+  label: string;
+  value: string;
+  description?: string | null;
+}
+
+const selectedUmkmItem = computed<SelectItem | undefined>({
+  get() {
+    const id = state.umkm_id;
+    const u = umkmList.value?.find((x: any) => x.id === id);
+    if (!u) return undefined;
+    return {
+      label: `${u.nama_usaha} — ${u.nama_pemilik}`,
+      value: u.id,
+      description: u.status
+        ? u.status.charAt(0).toUpperCase() + u.status.slice(1)
+        : undefined,
+    };
+  },
+  set(v) {
+    state.umkm_id = (v as any)?.value;
+  },
+});
+
 const untungRugi = computed(() => {
   const masuk = state.uang_masuk || 0;
   const keluar = state.uang_keluar || 0;
@@ -210,8 +235,8 @@ function copyToWhatsApp() {
               </template>
 
               <UFormField label="UMKM" name="umkm_id" required>
-                <USelect
-                  v-model="state.umkm_id"
+                <USelectMenu
+                  v-model="selectedUmkmItem"
                   :items="
                     umkmList?.map((u) => ({
                       label: `${u.nama_usaha} — ${u.nama_pemilik}`,
