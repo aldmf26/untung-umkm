@@ -31,7 +31,7 @@ onMounted(() => {
     duration: 0.5,
     text: {
       value:
-        "Laporan minggu ini 👇:<br/>1–7 Januari<br/>Masuk: Rp3.500.000<br/>Keluar: Rp2.100.000",
+        "Laporan minggu ini 👇<br/>1–7 Januari<br/>Masuk: Rp3.500.000<br/>Keluar: Rp2.100.000",
       delimiter: "",
     },
   })
@@ -87,7 +87,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener("mousemove", onMouseMove);
 });
-
 
 const openWa = () => {
   const no = "62895413111053";
