@@ -31,7 +31,9 @@ const { data: umkmData } = await useAsyncData(
   async () => {
     const { data, error } = await supabase
       .from("umkm_profiles")
-      .select("id, nama_usaha, nama_pemilik, no_wa, status, tanggal_join,catatan")
+      .select(
+        "id, nama_usaha, nama_pemilik, no_wa, status, tanggal_join,catatan"
+      )
       .eq("id", id)
       .single();
     if (error) throw error;
@@ -138,34 +140,6 @@ const columns: TableColumn<ReportRow>[] = [
         currency: "IDR",
         minimumFractionDigits: 0,
       }).format(row.original.untung_rugi || 0),
-  },
-  {
-    id: "actions",
-    header: "Aksi",
-    cell: ({ row }) =>
-      h("div", { class: "flex gap-2" }, [
-        h(UButton, {
-          icon: "i-lucide-trash",
-          size: "xs",
-          color: "error",
-          variant: "ghost",
-          onClick: async () => {
-            if (!confirm("Hapus laporan ini?")) return;
-            const { error } = await supabase
-              .from("weekly_reports")
-              .delete()
-              .eq("id", row.original.id);
-            if (error)
-              return toast.add({
-                title: "Gagal",
-                description: error.message,
-                color: "error",
-              });
-            toast.add({ title: "Terhapus", color: "success" });
-            refreshReports();
-          },
-        }),
-      ]),
   },
 ];
 
