@@ -299,7 +299,7 @@ useHead({
               No WA: <span class="font-mono">{{ umkmData?.no_wa }}</span>
             </div>
             <div class="text-sm">
-              Join:
+              Bergabung:
               {{
                 umkmData?.tanggal_join
                   ? new Intl.DateTimeFormat("id-ID", {
