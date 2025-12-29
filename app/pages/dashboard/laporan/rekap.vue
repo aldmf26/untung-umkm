@@ -7,6 +7,7 @@ import type { TableColumn } from "@nuxt/ui";
 definePageMeta({
   layout: "dashboard",
 });
+const UButton = resolveComponent("UButton");
 
 const supabase = useSupabaseClient();
 const router = useRouter();
