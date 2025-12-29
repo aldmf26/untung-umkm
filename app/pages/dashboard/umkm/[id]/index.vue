@@ -26,7 +26,7 @@ const HomePeriodSelect = resolveComponent("HomePeriodSelect");
 const table = useTemplateRef("table");
 
 // Data: UMKM profile
-const { data: umkmData} = await useAsyncData(
+const { data: umkmData } = await useAsyncData(
   `umkm-profile-${id}`,
   async () => {
     const { data, error } = await supabase
@@ -309,6 +309,9 @@ useHead({
                     }).format(new Date(umkmData.tanggal_join))
                   : "-"
               }}
+            </div>
+            <div class="text-sm">
+              Catatan: <span class="font-mono">{{ umkmData?.catatan }}</span>
             </div>
 
             <div class="mt-4 p-3 bg-elevated rounded-lg border">
