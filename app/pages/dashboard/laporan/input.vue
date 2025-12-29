@@ -11,6 +11,9 @@ const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 
+// Resolve modal component (used for AI prompt preview)
+const UModal = resolveComponent("UModal");
+
 // If `report_id` is present in the query, we're editing an existing report
 const reportId = ref<string | null>(
   (route.query.report_id as string) || (route.query.id as string) || null
@@ -32,8 +35,8 @@ const schema = z.object({
 type Schema = z.output<typeof schema>;
 
 // Load list UMKM
-const { data: umkmList } = await useAsyncData("umkm-list", async () => {
-  const { data } = await supabase
+const { data: umkmList } = await useAsyncData<any[]>("umkm-list", async () => {
+  const { data } = await (supabase as any)
     .from("umkm_profiles")
     .select("id, nama_usaha, nama_pemilik, status, no_wa")
     .order("nama_usaha");
@@ -63,7 +66,7 @@ const selectedUmkm = computed(() => {
 interface SelectItem {
   label: string;
   value: string;
-  description?: string | null;
+  description: string | null;
 }
 
 const selectedUmkmItem = computed<SelectItem | undefined>({
@@ -76,7 +79,7 @@ const selectedUmkmItem = computed<SelectItem | undefined>({
       value: u.id,
       description: u.status
         ? u.status.charAt(0).toUpperCase() + u.status.slice(1)
-        : undefined,
+        : "",
     };
   },
   set(v) {
@@ -129,7 +132,7 @@ onMounted(async () => {
   // If editing, load the report; otherwise set default week
   if (reportId.value) {
     try {
-      const { data: r, error } = await supabase
+      const { data: r, error } = await (supabase as any)
         .from("weekly_reports")
         .select("*")
         .eq("id", reportId.value)
@@ -167,6 +170,113 @@ onMounted(async () => {
     state.umkm_id = route.query.umkm_id as string;
 });
 
+// Previous reports for AI prompt (last 8 weeks)
+const { data: prevReportsData, refresh: refreshPrevReports } =
+  await useAsyncData<any[]>(
+    () =>
+      `prev-reports:${state.umkm_id || "none"}:${state.periode_mulai || ""}`,
+    async () => {
+      if (!state.umkm_id) return [];
+      const { data } = await (supabase as any)
+        .from("weekly_reports")
+        .select(
+          "periode_mulai, periode_selesai, uang_masuk, uang_keluar, masalah, saran"
+        )
+        .eq("umkm_id", state.umkm_id)
+        .order("periode_mulai", { ascending: false })
+        .limit(8);
+      return data || [];
+    }
+  );
+
+const prevReports = computed(() => prevReportsData.value || []);
+
+// AI prompt generation & preview/copy
+const aiPreviewOpen = ref(false);
+
+const aiPrompt = computed(() => {
+  if (!selectedUmkm.value) return "";
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(n || 0);
+
+  const lines: string[] = [];
+  lines.push(
+    `UMKM: ${selectedUmkm.value.nama_usaha} (Pemilik: ${selectedUmkm.value.nama_pemilik})`
+  );
+  lines.push(
+    `Periode laporan: ${state.periode_mulai || "-"} — ${
+      state.periode_selesai || "-"
+    }`
+  );
+  lines.push(`Uang Masuk: ${fmt(state.uang_masuk || 0)}`);
+  lines.push(`Uang Keluar: ${fmt(state.uang_keluar || 0)}`);
+  lines.push(
+    `Untung/Rugi: ${
+      state.uang_masuk && state.uang_keluar
+        ? fmt((state.uang_masuk || 0) - (state.uang_keluar || 0))
+        : "-"
+    }\n`
+  );
+
+  if ((prevReports.value || []).length) {
+    lines.push("Data 8 minggu terakhir (terbaru dulu):");
+    prevReports.value.forEach((r: any, idx: number) => {
+      const masuk = Number(r.uang_masuk || 0);
+      const keluar = Number(r.uang_keluar || 0);
+      const ur = masuk - keluar;
+      lines.push(
+        `${idx + 1}. ${r.periode_mulai} — ${r.periode_selesai}: Masuk ${fmt(
+          masuk
+        )}, Keluar ${fmt(keluar)}, Untung/Rugi ${fmt(ur)}`
+      );
+    });
+  } else {
+    lines.push("Tidak ada data historis tersedia.");
+  }
+
+  lines.push(
+    "\nInstruksi untuk AI:\n" +
+      "Kamu adalah pembantu keuangan sederhana untuk pemilik toko kecil.\n" +
+      "Jawaban HARUS singkat, jelas, dan cocok dikirim lewat WhatsApp.\n\n" +
+      "Gunakan struktur WAJIB dan URUT berikut (jangan tambah bagian lain):\n\n" +
+      "1. Rangkuman Mingguan (Analisa Singkat)\n" +
+      "- Maksimal 2 kalimat\n" +
+      "- Sebutkan: untung/rugi, jumlahnya, dan perbandingan dengan minggu sebelumnya (jika ada)\n\n" +
+      "2. Grafik Teks (bukan gambar)\n" +
+      "- Gunakan simbol █\n" +
+      "- Ukuran kecil dan mudah di-screenshot\n" +
+      "- Tampilkan tren UNTUNG dari data mingguan\n\n" +
+      "3. Masalah yang Mungkin\n" +
+      "- Bullet point pendek (2–3 poin)\n" +
+      "- Fokus ke masalah utama\n\n" +
+      "4. Saran Praktis\n" +
+      "- Bullet point\n" +
+      "- Setiap saran WAJIB ada 'Cara melakukannya'\n" +
+      "- Harus mudah dilakukan, tanpa teori\n\n" +
+      "Gaya bahasa:\n" +
+      "- Bahasa Indonesia sangat sederhana\n" +
+      "- Seperti ngobrol dengan teman\n" +
+      "- Jangan panjang dan jangan formal\n" +
+      "- Harus enak di-copy paste ke WhatsApp"
+  );
+
+  return lines.join("\n");
+});
+
+async function copyPromptToAi() {
+  if (!aiPrompt.value) return;
+  await navigator.clipboard.writeText(aiPrompt.value);
+  toast.add({
+    title: "Prompt Disalin",
+    description: "Prompt AI telah disalin ke clipboard",
+    color: "success",
+  });
+}
+
 // Submit
 const loading = ref(false);
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -184,7 +294,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         is_partial: event.data.is_partial,
       };
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("weekly_reports")
         .update(payload)
         .eq("id", reportId.value);
@@ -201,7 +311,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       router.push("/dashboard/laporan");
     } else {
       // Create new report (existing behavior)
-      const { error } = await supabase.from("weekly_reports").insert({
+      const { error } = await (supabase as any).from("weekly_reports").insert({
         umkm_id: event.data.umkm_id,
         periode_mulai: event.data.periode_mulai,
         periode_selesai: event.data.periode_selesai,
@@ -431,6 +541,27 @@ function copyToWhatsApp() {
                   </h3>
                 </div>
               </template>
+              <!-- AI Prompt actions -->
+              <div class="flex items-center gap-2 mb-5">
+                <UButton
+                  size="sm"
+                  color="neutral"
+                  icon="i-heroicons-clipboard-document"
+                  :disabled="
+                    !state.umkm_id ||
+                    !state.periode_mulai ||
+                    !state.periode_selesai
+                  "
+                  @click.prevent="copyPromptToAi"
+                >
+                  Copy Prompt ke AI
+                </UButton>
+
+                <div class="text-sm text-muted">
+                  Gunakan prompt ini untuk meminta analisis & saran otomatis ke
+                  layanan AI.
+                </div>
+              </div>
 
               <div class="space-y-6">
                 <UFormField
@@ -503,7 +634,6 @@ function copyToWhatsApp() {
                 >
               </div>
             </UCard>
-
             <!-- Submit Buttons -->
             <div class="flex flex-col sm:flex-row justify-end gap-4 pt-2">
               <UButton
