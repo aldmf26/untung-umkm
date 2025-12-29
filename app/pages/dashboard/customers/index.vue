@@ -3,6 +3,7 @@ import type { TableColumn } from "@nuxt/ui";
 import { upperFirst } from "scule";
 import { getPaginationRowModel } from "@tanstack/table-core";
 import type { Row } from "@tanstack/table-core";
+import { no } from "zod/locales";
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
@@ -58,6 +59,130 @@ function handleAdded(newItem: UMKM) {
     color: "success",
   });
   refreshUmkm();
+}
+
+function _buildCsv(rows: any[], headers: string[]) {
+  const csv = [headers.join(",")]
+    .concat(
+      rows.map((r: any) =>
+        headers
+          .map((h) => {
+            const v = r[h] ?? r[h] === 0 ? r[h] : "";
+            return `"${(v ?? "").toString().replace(/"/g, '""')}"`;
+          })
+          .join(",")
+      )
+    )
+    .join("\n");
+  return csv;
+}
+
+function _downloadCsv(csv: string, filename: string) {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function exportCustomersXlsx() {
+  try {
+    const rows =
+      table?.value?.tableApi
+        ?.getFilteredRowModel()
+        .rows?.map((r: any) => r.original) ||
+      umkmData.value ||
+      [];
+    const dataRows = rows.map((r: any) => ({
+      nama_usaha: r.nama_usaha,
+      nama_pemilik: r.nama_pemilik,
+      no_wa: r.no_wa,
+      tanggal_join: r.tanggal_join,
+      status: r.status,
+      catatan: r.catatan,
+    }));
+
+    const { Workbook } = await import("exceljs");
+    const wb: any = new Workbook();
+    const ws = wb.addWorksheet("Customers");
+
+    const headers = [
+      "Nama Usaha",
+      "Nama Pemilik",
+      "No. WhatsApp",
+      "Tanggal Join",
+      "Status",
+      "Catatan",
+    ];
+    ws.addRow(headers);
+
+    const headerRow = ws.getRow(1);
+    headerRow.font = { bold: true } as any;
+    headerRow.alignment = { horizontal: "center", vertical: "middle" } as any;
+    headerRow.eachCell((cell: any) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    dataRows.forEach((r: any) => {
+      const row = ws.addRow([
+        r.nama_usaha,
+        r.nama_pemilik,
+        r.no_wa,
+        r.tanggal_join,
+        r.status,
+        r.catatan,
+      ]);
+    });
+
+    ws.eachRow((row: any) => {
+      row.eachCell((cell: any) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+    });
+
+    ws.columns.forEach((col: any) => {
+      let max = 10;
+      col.eachCell((cell: any) => {
+        const v = (cell.value || "").toString();
+        max = Math.max(max, v.length + 2);
+      });
+      col.width = Math.min(max, 50);
+    });
+
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `customers_all.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err: any) {
+    console.error(err);
+    toast.add({
+      title: "Gagal mengekspor",
+      description: "Install paket exceljs (pnpm add exceljs) atau coba lagi",
+      color: "error",
+    });
+  }
 }
 
 async function handleDeleteSelected() {
@@ -395,7 +520,17 @@ useHead({
         </template>
 
         <template #right>
-          <CustomersAddModal @saved="handleAdded" />
+          <div class="flex items-center gap-2">
+            <CustomersAddModal @saved="handleAdded" />
+            <UButton
+              color="neutral"
+              icon="i-heroicons-arrow-down-tray"
+              label="Export Excel"
+              variant="subtle"
+              size="sm"
+              @click="exportCustomersXlsx"
+            />
+          </div>
         </template>
       </UDashboardNavbar>
     </template>

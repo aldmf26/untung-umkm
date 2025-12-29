@@ -100,6 +100,147 @@ async function deleteSelectedReports() {
   await refreshReports();
 }
 
+function _buildCsv(rows: any[], headers: string[]) {
+  const csv = [headers.join(",")]
+    .concat(
+      rows.map((r: any) =>
+        headers
+          .map((h) => {
+            const v = r[h] ?? r[h] === 0 ? r[h] : "";
+            return `"${(v ?? "").toString().replace(/"/g, '""')}"`;
+          })
+          .join(",")
+      )
+    )
+    .join("\n");
+  return csv;
+}
+
+function _downloadCsv(csv: string, filename: string) {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function exportReportsXlsx() {
+  try {
+    const rows =
+      table?.value?.tableApi
+        ?.getFilteredRowModel()
+        .rows?.map((r: any) => r.original) ||
+      reports.value ||
+      [];
+    const dataRows = rows.map((r: any) => ({
+      periode_mulai: r.periode_mulai,
+      periode_selesai: r.periode_selesai,
+      nama_usaha: r.umkm_profiles?.nama_usaha || "",
+      nama_pemilik: r.umkm_profiles?.nama_pemilik || "",
+      uang_masuk: Number(r.uang_masuk || 0),
+      uang_keluar: Number(r.uang_keluar || 0),
+      untung_rugi: Number(r.untung_rugi || 0),
+      created_at: r.created_at || "",
+    }));
+
+    // @ts-ignore - exceljs may be an optional dependency; install if missing
+    const mod: any = await import("exceljs");
+    const Workbook =
+      mod.Workbook || mod.default?.Workbook || mod.default || mod;
+    const wb: any = new Workbook();
+    const ws = wb.addWorksheet("Laporan");
+
+    const headers = [
+      "Periode Mulai",
+      "Periode Selesai",
+      "Nama Usaha",
+      "Nama Pemilik",
+      "Uang Masuk",
+      "Uang Keluar",
+      "Untung/Rugi",
+      "Created At",
+    ];
+    ws.addRow(headers);
+
+    const headerRow = ws.getRow(1);
+    headerRow.font = { bold: true } as any;
+    headerRow.alignment = { horizontal: "center", vertical: "middle" } as any;
+    headerRow.eachCell((cell: any) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    dataRows.forEach((r: any) => {
+      const row = ws.addRow([
+        r.periode_mulai,
+        r.periode_selesai,
+        r.nama_usaha,
+        r.nama_pemilik,
+        r.uang_masuk,
+        r.uang_keluar,
+        r.untung_rugi,
+        r.created_at,
+      ]);
+      // numeric columns
+      (row.getCell(7) as any).numFmt = "#,##0";
+      (row.getCell(8) as any).numFmt = "#,##0";
+      (row.getCell(9) as any).numFmt = "#,##0";
+    });
+
+    ws.eachRow((row: any) => {
+      row.eachCell((cell: any) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+    });
+
+    ws.columns.forEach((col: any) => {
+      let max = 10;
+      col.eachCell((cell: any) => {
+        const v = (cell.value || "").toString();
+        max = Math.max(max, v.length + 2);
+      });
+      col.width = Math.min(max, 50);
+    });
+
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const label =
+      typeof dateRangeLabel?.value === "string"
+        ? dateRangeLabel.value.replace(/\s+/g, "_")
+        : "range";
+    a.href = url;
+    a.download = `laporan_${label}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err: any) {
+    console.error(err);
+    toast.add({
+      title: "Gagal mengekspor",
+      description: "Install paket exceljs (pnpm add exceljs) atau coba lagi",
+      color: "error",
+    });
+  }
+}
+
 import type { TableColumn } from "@nuxt/ui";
 import { getPaginationRowModel } from "@tanstack/table-core";
 import type { Row } from "@tanstack/table-core";
@@ -379,6 +520,14 @@ useHead({
               color="success"
               icon="i-heroicons-plus"
               @click="() => goToInput()"
+            />
+            <UButton
+              color="neutral"
+              icon="i-heroicons-arrow-down-tray"
+              label="Export Excel"
+              variant="subtle"
+              size="sm"
+              @click="exportReportsXlsx"
             />
           </div>
         </template>
