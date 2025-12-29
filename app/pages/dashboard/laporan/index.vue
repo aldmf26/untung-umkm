@@ -362,6 +362,10 @@ function goToInput(umkmId?: string, reportId?: string) {
   };
   router.push(to);
 }
+
+useHead({
+  title: "Laporan Mingguan",
+});
 </script>
 
 <template>

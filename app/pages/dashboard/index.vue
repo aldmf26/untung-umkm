@@ -158,6 +158,10 @@ function fmtDate(d?: string) {
     year: "numeric",
   }).format(new Date(d));
 }
+
+useHead({
+  title: "Dashboard",
+});
 </script>
 
 <template>

@@ -67,6 +67,10 @@ async function onSubmit(event: FormSubmitEvent<PasswordSchema>) {
     loading.value = false;
   }
 }
+
+useHead({
+  title: "Ubah Password",
+});
 </script>
 
 <template>

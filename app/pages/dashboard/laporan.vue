@@ -23,6 +23,10 @@ const links = [
     },
   ],
 ] satisfies NavigationMenuItem[][];
+
+useHead({
+  title: "Laporan",
+});
 </script>
 
 <template>
@@ -36,7 +40,7 @@ const links = [
 
       <UDashboardToolbar>
         <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
-        <UNavigationMenu :items="links" highlight class="" />
+        <UNavigationMenu :items="links" highlight class="-mx-1" />
       </UDashboardToolbar>
     </template>
 

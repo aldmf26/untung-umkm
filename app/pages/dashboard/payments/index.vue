@@ -227,6 +227,10 @@ const searchQuery = computed({
       ?.getColumn("nama_usaha")
       ?.setFilterValue(value || undefined),
 });
+
+useHead({
+  title: "Pembayaran",
+});
 </script>
 
 <template>

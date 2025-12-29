@@ -192,6 +192,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     loading.value = false;
   }
 }
+
+useHead({
+  title: "Catat Pembayaran",
+});
 </script>
 
 <template>

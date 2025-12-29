@@ -17,6 +17,10 @@ const links = [
     },
   ],
 ] satisfies NavigationMenuItem[][];
+
+useHead({
+  title: "Settings",
+});
 </script>
 
 <template>

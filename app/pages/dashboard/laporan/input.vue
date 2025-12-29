@@ -361,6 +361,10 @@ function copyToWhatsApp() {
     color: "success",
   });
 }
+
+useHead({
+  title: "Input Laporan Mingguan",
+});
 </script>
 
 <template>

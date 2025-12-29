@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Period, Range } from "~/types";
 import { sub } from "date-fns";
+import { getPaginationRowModel } from "@tanstack/table-core";
+import type { TableColumn } from "@nuxt/ui";
 
 definePageMeta({
   layout: "dashboard",
@@ -19,7 +21,9 @@ const period = ref<Period>("daily");
 const { data: umkmData } = await useAsyncData("rekap-umkm", async () => {
   const { data } = await supabase
     .from("umkm_profiles")
-    .select("id, nama_usaha, nama_pemilik, status");
+    .select("id, nama_usaha, nama_pemilik, status")
+    .order("tanggal_join", { ascending: false });
+
   return data || [];
 });
 
@@ -130,6 +134,113 @@ const topByMasuk = computed(() =>
   [...summaries.value].sort((a, b) => b.total_masuk - a.total_masuk).slice(0, 5)
 );
 
+// Detail table: search + pagination
+const tableDetail = ref<any>(null);
+const detailSearch = ref("");
+const detailPagination = ref({ pageIndex: 0, pageSize: 10 });
+
+const detailColumns: TableColumn<any>[] = [
+  {
+    accessorKey: "nama_usaha",
+    header: "UMKM",
+    cell: ({ row }: any) =>
+      h("div", { class: "font-semibold" }, row.original.nama_usaha),
+  },
+  { accessorKey: "nama_pemilik", header: "Pemilik" },
+  {
+    accessorKey: "total_pembayaran",
+    header: "Pembayaran",
+    cell: ({ row }: any) =>
+      h(
+        "div",
+        { class: "text-right text-green-600 font-medium" },
+        new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(row.original.total_pembayaran || 0)
+      ),
+  },
+  {
+    accessorKey: "total_masuk",
+    header: "Uang Masuk",
+    cell: ({ row }: any) =>
+      h(
+        "div",
+        { class: "text-right text-info" },
+        new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(row.original.total_masuk || 0)
+      ),
+  },
+  {
+    accessorKey: "total_keluar",
+    header: "Uang Keluar",
+    cell: ({ row }: any) =>
+      h(
+        "div",
+        { class: "text-right text-orange-600" },
+        new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(row.original.total_keluar || 0)
+      ),
+  },
+  {
+    accessorKey: "total_profit",
+    header: "Profit",
+    cell: ({ row }: any) => {
+      const v = row.original.total_profit || 0;
+      return h(
+        "div",
+        {
+          class:
+            "text-right font-semibold " +
+            (v >= 0 ? "text-green-600" : "text-red-600"),
+        },
+        new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(v)
+      );
+    },
+  },
+  {
+    accessorKey: "jumlah_laporan",
+    header: "Laporan",
+    cell: ({ row }: any) =>
+      h("div", { class: "text-center" }, row.original.jumlah_laporan),
+  },
+  {
+    id: "actions",
+    header: "Aksi",
+    cell: ({ row }: any) =>
+      h(
+        UButton,
+        {
+          size: "xs",
+          variant: "ghost",
+          onClick: () => router.push(`/dashboard/umkm/${row.original.id}`),
+        },
+        { default: () => "Lihat" }
+      ),
+  },
+];
+
+const filteredSummaries = computed(() => {
+  const q = detailSearch.value.trim().toLowerCase();
+  if (!q) return summaries.value;
+  return summaries.value.filter(
+    (s: any) =>
+      (s.nama_usaha || "").toLowerCase().includes(q) ||
+      (s.nama_pemilik || "").toLowerCase().includes(q)
+  );
+});
+
 function fmtMoney(n: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -137,13 +248,15 @@ function fmtMoney(n: number) {
     minimumFractionDigits: 0,
   }).format(n);
 }
+
+useHead({
+  title: "Rekap Laporan Mingguan",
+});
 </script>
 
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-      <UDashboardNavbar title="Rekap & Analisis UMKM" />
-
       <UDashboardToolbar>
         <template #left>
           <HomeDateRangePicker v-model="range" />
@@ -154,46 +267,46 @@ function fmtMoney(n: number) {
       <UDashboardPanelContent>
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <UCard>
+          <UCard class="bg-elevated rounded-lg border shadow-sm">
             <div class="flex items-start justify-between">
-              <div>
-                <p class="text-sm text-gray-600">Total Pembayaran</p>
+              <div class="">
+                <p class="text-sm">Total Pembayaran</p>
                 <p class="text-2xl font-bold text-green-600 mt-2">
                   {{ fmtMoney(totalPembayaranAll) }}
                 </p>
-                <p class="text-xs text-gray-500 mt-1">Dari klien ke admin</p>
+                <p class="text-xs text-muted mt-1">Dari klien ke admin</p>
               </div>
             </div>
           </UCard>
 
-          <UCard>
+          <UCard class="bg-elevated rounded-lg border shadow-sm">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-sm text-gray-600">Total Uang Masuk</p>
-                <p class="text-2xl font-bold text-blue-600 mt-2">
+                <p class="text-sm">Total Uang Masuk</p>
+                <p class="text-2xl font-bold text-info mt-2">
                   {{ fmtMoney(totalMasukAll) }}
                 </p>
-                <p class="text-xs text-gray-500 mt-1">Pendapatan UMKM</p>
+                <p class="text-xs text-muted mt-1">Pendapatan UMKM</p>
               </div>
             </div>
           </UCard>
 
-          <UCard>
+          <UCard class="bg-elevated rounded-lg border shadow-sm">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-sm text-gray-600">Total Uang Keluar</p>
+                <p class="text-sm">Total Uang Keluar</p>
                 <p class="text-2xl font-bold text-orange-600 mt-2">
                   {{ fmtMoney(totalKeluarAll) }}
                 </p>
-                <p class="text-xs text-gray-500 mt-1">Pengeluaran UMKM</p>
+                <p class="text-xs text-muted mt-1">Pengeluaran UMKM</p>
               </div>
             </div>
           </UCard>
 
-          <UCard>
+          <UCard class="bg-elevated rounded-lg border shadow-sm">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-sm text-gray-600">Total Profit</p>
+                <p class="text-sm">Total Profit</p>
                 <p
                   class="text-2xl font-bold mt-2"
                   :class="
@@ -202,7 +315,7 @@ function fmtMoney(n: number) {
                 >
                   {{ fmtMoney(totalProfitAll) }}
                 </p>
-                <p class="text-xs text-gray-500 mt-1">Untung/Rugi Gabungan</p>
+                <p class="text-xs text-muted mt-1">Untung/Rugi Gabungan</p>
               </div>
             </div>
           </UCard>
@@ -211,7 +324,7 @@ function fmtMoney(n: number) {
         <!-- Top Performers -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           <!-- Top by Profit -->
-          <UCard>
+          <UCard class="bg-elevated rounded-lg border shadow-sm">
             <template #header>
               <div class="flex items-center justify-between">
                 <h3 class="font-semibold">🏆 Top 5 Profit Terbesar</h3>
@@ -227,13 +340,13 @@ function fmtMoney(n: number) {
               >
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm"
+                    class="w-8 h-8 rounded-full bg-success flex items-center justify-center font-bold text-sm"
                   >
                     {{ idx + 1 }}
                   </div>
                   <div>
                     <p class="font-medium text-sm">{{ item.nama_usaha }}</p>
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-muted">
                       {{ item.jumlah_laporan }} laporan
                     </p>
                   </div>
@@ -253,7 +366,7 @@ function fmtMoney(n: number) {
           </UCard>
 
           <!-- Top by Pembayaran -->
-          <UCard>
+          <UCard class="bg-elevated rounded-lg border shadow-sm">
             <template #header>
               <h3 class="font-semibold">💰 Top 5 Pembayaran Tertinggi</h3>
             </template>
@@ -298,7 +411,7 @@ function fmtMoney(n: number) {
           </UCard>
 
           <!-- Top by Pendapatan -->
-          <UCard>
+          <UCard class="bg-elevated rounded-lg border shadow-sm">
             <template #header>
               <h3 class="font-semibold">📈 Top 5 Pendapatan Terbesar</h3>
             </template>
@@ -312,19 +425,19 @@ function fmtMoney(n: number) {
               >
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white font-bold text-sm"
+                    class="w-8 h-8 rounded-full bg-success flex items-center justify-center font-bold text-sm"
                   >
                     {{ idx + 1 }}
                   </div>
                   <div>
                     <p class="font-medium text-sm">{{ item.nama_usaha }}</p>
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-muted">
                       Avg: {{ fmtMoney(item.avg_profit) }}
                     </p>
                   </div>
                 </div>
                 <div class="text-right">
-                  <p class="font-semibold text-sm text-blue-600">
+                  <p class="font-semibold text-sm text-info">
                     {{ fmtMoney(item.total_masuk) }}
                   </p>
                 </div>
@@ -333,117 +446,73 @@ function fmtMoney(n: number) {
           </UCard>
         </div>
 
-        <!-- Detail Table -->
-        <UCard>
+        <UCard class="bg-elevated rounded-lg border shadow-sm">
           <template #header>
-            <h3 class="font-semibold">Detail Per UMKM</h3>
+            <div class="flex items-center justify-between w-full">
+              <h3 class="font-semibold">Detail Per UMKM</h3>
+
+              <div class="flex items-center gap-2">
+                <UInput
+                  v-model="detailSearch"
+                  class="max-w-sm"
+                  size="sm"
+                  icon="i-lucide-search"
+                  placeholder="Cari UMKM..."
+                />
+              </div>
+            </div>
           </template>
 
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y">
-              <thead class="">
-                <tr>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                  >
-                    UMKM
-                  </th>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Status
-                  </th>
-                  <th
-                    class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Pembayaran
-                  </th>
-                  <th
-                    class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Uang Masuk
-                  </th>
-                  <th
-                    class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Uang Keluar
-                  </th>
-                  <th
-                    class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Profit
-                  </th>
-                  <th
-                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Laporan
-                  </th>
-                  <th
-                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="">
-                <tr v-for="item in summaries" :key="item.id">
-                  <td class="px-4 py-3">
-                    <div>
-                      <p class="font-medium text-sm">{{ item.nama_usaha }}</p>
-                      <p class="text-xs text-gray-500">
-                        {{ item.nama_pemilik }}
-                      </p>
-                    </div>
-                  </td>
-                  <td class="px-4 py-3">
-                    <UBadge
-                      :color="
-                        item.status === 'active'
-                          ? 'success'
-                          : item.status === 'trial'
-                          ? 'warning'
-                          : 'error'
-                      "
-                      variant="soft"
-                      size="md"
-                    >
-                      {{ item.status }}
-                    </UBadge>
-                  </td>
-                  <td
-                    class="px-4 py-3 text-right text-sm font-medium text-green-600"
-                  >
-                    {{ fmtMoney(item.total_pembayaran) }}
-                  </td>
-                  <td class="px-4 py-3 text-right text-sm text-blue-600">
-                    {{ fmtMoney(item.total_masuk) }}
-                  </td>
-                  <td class="px-4 py-3 text-right text-sm text-orange-600">
-                    {{ fmtMoney(item.total_keluar) }}
-                  </td>
-                  <td
-                    class="px-4 py-3 text-right text-sm font-semibold"
-                    :class="
-                      item.total_profit >= 0 ? 'text-green-600' : 'text-red-600'
-                    "
-                  >
-                    {{ fmtMoney(item.total_profit) }}
-                  </td>
-                  <td class="px-4 py-3 text-center text-sm">
-                    {{ item.jumlah_laporan }}
-                  </td>
-                  <td class="px-4 py-3 text-center">
-                    <UButton
-                      size="xs"
-                      variant="ghost"
-                      @click="router.push(`/dashboard/umkm/${item.id}`)"
-                    >
-                      Lihat
-                    </UButton>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="overflow-auto rounded-lg p-2">
+            <UTable
+              ref="tableDetail"
+              :data="filteredSummaries"
+              :columns="detailColumns"
+              v-model:pagination="detailPagination"
+              :getPaginationRowModel="getPaginationRowModel"
+            >
+              <template #empty-state>
+                <div class="text-center py-12 text-gray-500">
+                  <UIcon
+                    name="i-heroicons-document-text"
+                    class="text-4xl mb-4"
+                  />
+                  <p class="font-medium">Tidak ada data untuk range ini.</p>
+                </div>
+              </template>
+            </UTable>
+          </div>
+
+          <div
+            class="flex items-center justify-between gap-3 border-t border-default pt-4 mt-auto"
+          >
+            <div class="text-sm text-muted">
+              {{
+                tableDetail?.tableApi?.getFilteredSelectedRowModel().rows
+                  .length || 0
+              }}
+              of
+              {{
+                tableDetail?.tableApi?.getFilteredRowModel().rows.length || 0
+              }}
+              row(s) selected.
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <UPagination
+                :default-page="
+                  (tableDetail?.tableApi?.getState().pagination.pageIndex ||
+                    0) + 1
+                "
+                :items-per-page="
+                  tableDetail?.tableApi?.getState().pagination.pageSize
+                "
+                :total="
+                  tableDetail?.tableApi?.getFilteredRowModel().rows.length
+                "
+                @update:page="(p: number) => tableDetail?.tableApi?.setPageIndex(p - 1)"
+              />
+            </div>
           </div>
         </UCard>
       </UDashboardPanelContent>

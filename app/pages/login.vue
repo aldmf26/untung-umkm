@@ -31,7 +31,7 @@ const handleLogin = async () => {
 };
 
 useHead({
-  title: "Login - UMKM Dashboard",
+  title: "Login",
 });
 </script>
 

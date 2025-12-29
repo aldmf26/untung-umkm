@@ -44,7 +44,7 @@ const { data: umkmData, refresh: refreshUmkm } = await useAsyncData(
     const { data } = await supabase
       .from("umkm_profiles")
       .select("*")
-      .order("nama_usaha", { ascending: true });
+      .order("tanggal_join", { ascending: false });
 
     return data || [];
   },
@@ -382,7 +382,7 @@ const pagination = ref({
 });
 
 useHead({
-  title: "Data UMKM - Dashboard",
+  title: "Data UMKM",
 });
 </script>
 

@@ -237,6 +237,10 @@ const searchQuery = computed({
       ?.setFilterValue(v || undefined),
 });
 const tablePagination = ref({ pageIndex: 0, pageSize: 10 });
+
+useHead({
+  title: "Detail UMKM",
+});
 </script>
 
 <template>
