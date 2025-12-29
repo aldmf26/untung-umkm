@@ -108,12 +108,12 @@ const paymentColumns: TableColumn<any>[] = [
       h("div", {}, [
         h(
           "div",
-          { class: "font-medium" },
+          { class: "font-bold" },
           row.original.umkm_profiles?.nama_usaha || "-"
         ),
         h(
           "div",
-          { class: "text-sm text-gray-500" },
+          { class: "text-sm text-muted" },
           row.original.umkm_profiles?.nama_pemilik || "-"
         ),
       ]),

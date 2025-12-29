@@ -141,12 +141,24 @@ const detailPagination = ref({ pageIndex: 0, pageSize: 10 });
 
 const detailColumns: TableColumn<any>[] = [
   {
-    accessorKey: "nama_usaha",
-    header: "UMKM",
-    cell: ({ row }: any) =>
-      h("div", { class: "font-semibold" }, row.original.nama_usaha),
+    accessorKey: "No",
+    header: "No",
+    cell: ({ row }: any) => h("div", {}, row.index + 1),
   },
-  { accessorKey: "nama_pemilik", header: "Pemilik" },
+  {
+    id: "nama_usaha",
+    header: "UMKM",
+    accessorFn: (row: any) => row.nama_usaha || "",
+    cell: ({ row }) =>
+      h("div", {}, [
+        h("div", { class: "font-bold" }, row.original.nama_usaha || "-"),
+        h(
+          "div",
+          { class: "text-sm text-muted" },
+          row.original.nama_pemilik || "-"
+        ),
+      ]),
+  },
   {
     accessorKey: "total_pembayaran",
     header: "Pembayaran",
