@@ -400,12 +400,13 @@ useHead({
     </template>
 
     <template #body>
-      <div class="flex flex-wrap items-center justify-between gap-1.5">
+      <div class="flex flex-wrap items-center justify-end gap-1.5">
         <UInput
           v-model="searchQuery"
           class="max-w-sm"
+          size="sm"
           icon="i-lucide-search"
-          placeholder="Search..."
+          placeholder="Cari UMKM..."
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
@@ -440,30 +441,8 @@ useHead({
             ]"
             placeholder="Filter status"
             class="min-w-32"
+            size="sm"
           />
-
-          <UDropdownMenu
-            :items="table?.tableApi?.getAllColumns().filter((c: any) => c.getCanHide()).map((c: any) => ({
-                label: upperFirst(
-                  c.id === 'nama_usaha' ? 'Nama Usaha' :
-                  c.id === 'nama_pemilik' ? 'Pemilik' :
-                  c.id === 'no_wa' ? 'No WA' :
-                  c.id === 'tanggal_join' ? 'Tanggal Join' : c.id
-                ),
-                type: 'checkbox' as const,
-                checked: c.getIsVisible(),
-                onUpdateChecked: (v: boolean) => table?.tableApi?.getColumn(c.id)?.toggleVisibility(!!v),
-                onSelect: (e?: Event) => e?.preventDefault(),
-              }))"
-            :content="{ align: 'end' }"
-          >
-            <UButton
-              label="Kolom"
-              color="neutral"
-              variant="outline"
-              trailing-icon="i-heroicons-adjustments-horizontal"
-            />
-          </UDropdownMenu>
         </div>
       </div>
 

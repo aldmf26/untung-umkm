@@ -101,20 +101,47 @@ import type { TableColumn } from "@nuxt/ui";
 import { getPaginationRowModel } from "@tanstack/table-core";
 import type { Row } from "@tanstack/table-core";
 
+import { useDateFilter } from "~/composables/useDateFilter";
+const df = useDateFilter();
+const {
+  dateFilterType,
+  selectedMonth,
+  selectedYear,
+  fromDate,
+  toDate,
+  apply: applyDateFilterCb,
+  reset: resetDateFilterCb,
+  setMonthRangeFromSelectedMonth,
+  label: dateRangeLabel,
+} = df;
+
 const { data: reportsData, refresh: refreshReports } = await useAsyncData(
-  "weekly-reports-list",
+  () => `weekly-reports-list:${fromDate.value}:${toDate.value}`,
   async () => {
-    const { data, error } = await supabase
+    let query: any = supabase
       .from("weekly_reports")
       .select(
         "id, umkm_id, periode_mulai, periode_selesai, uang_masuk, uang_keluar, untung_rugi, created_at, umkm_profiles(id, nama_usaha, nama_pemilik, no_wa)"
       )
       .order("periode_mulai", { ascending: false });
 
+    if (fromDate.value) query = query.gte("periode_mulai", fromDate.value);
+    if (toDate.value) query = query.lte("periode_mulai", toDate.value);
+
+    const { data, error } = await query;
+
     if (error) throw error;
     return data || [];
   }
 );
+
+async function applyDateFilter() {
+  await applyDateFilterCb(refreshReports);
+}
+
+async function resetDateFilter() {
+  await resetDateFilterCb(refreshReports);
+}
 
 const reports = computed(() => reportsData.value || []);
 
@@ -352,15 +379,16 @@ function goToInput(umkmId?: string, reportId?: string) {
 
       <UDashboardToolbar>
         <template #left>
-          <div class="text-sm text-muted">Daftar laporan mingguan per UMKM</div>
+          <div class="text-sm text-muted ml-2">Range: {{ dateRangeLabel }}</div>
         </template>
 
         <template #right>
           <div class="flex items-center gap-2">
             <UInput
               v-model="searchQuery"
-              placeholder="Cari UMKM..."
+              placeholder="Cari Laporan..."
               size="sm"
+              icon="i-lucide-search"
               class="w-64"
             />
             <UButton
@@ -378,23 +406,50 @@ function goToInput(umkmId?: string, reportId?: string) {
               </template>
             </UButton>
 
-            <UDropdownMenu
-              :items="table?.tableApi?.getAllColumns().filter((c: any) => c.getCanHide()).map((c: any) => ({
-                label: c.id === 'umkm' ? 'UMKM' : c.id,
-                type: 'checkbox' as const,
-                checked: c.getIsVisible(),
-                onUpdateChecked: (v: boolean) => table?.tableApi?.getColumn(c.id)?.toggleVisibility(!!v),
-                onSelect: (e?: Event) => e?.preventDefault(),
-              }))"
-              :content="{ align: 'end' }"
-            >
-              <UButton
-                label="Kolom"
-                color="neutral"
-                variant="outline"
-                trailing-icon="i-heroicons-adjustments-horizontal"
+            <div class="flex items-center gap-2">
+              <USelect
+                v-model="dateFilterType"
+                :items="[
+                  { label: 'Bulan', value: 'month' },
+                  { label: 'Tahun', value: 'year' },
+                  { label: 'Custom', value: 'custom' },
+                ]"
+                size="sm"
+                class="w-36"
               />
-            </UDropdownMenu>
+
+              <div v-if="dateFilterType === 'month'">
+                <UInput
+                  type="month"
+                  v-model="selectedMonth"
+                  size="sm"
+                  class="w-40"
+                />
+              </div>
+
+              <div v-else-if="dateFilterType === 'year'">
+                <UInput
+                  type="number"
+                  v-model.number="selectedYear"
+                  size="sm"
+                  class="w-28"
+                  placeholder="2025"
+                />
+              </div>
+
+              <div v-else class="flex items-center gap-2">
+                <UInput type="date" v-model="fromDate" size="sm" class="w-36" />
+                <UInput type="date" v-model="toDate" size="sm" class="w-36" />
+              </div>
+
+              <UButton size="sm" label="Terapkan" @click="applyDateFilter" />
+              <UButton
+                size="sm"
+                variant="ghost"
+                label="Reset"
+                @click="resetDateFilter"
+              />
+            </div>
           </div>
         </template>
       </UDashboardToolbar>
