@@ -31,7 +31,7 @@ const { data: umkmData } = await useAsyncData(
   async () => {
     const { data, error } = await supabase
       .from("umkm_profiles")
-      .select("id, nama_usaha, nama_pemilik, no_wa, status, tanggal_join")
+      .select("id, nama_usaha, nama_pemilik, no_wa, status, tanggal_join,catatan")
       .eq("id", id)
       .single();
     if (error) throw error;
