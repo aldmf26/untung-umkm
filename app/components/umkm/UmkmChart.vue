@@ -141,7 +141,7 @@ const template = (d: DataRecord) =>
     <template #header>
       <div>
         <p class="text-xs text-muted uppercase mb-1.5">Tren Untung/Rugi</p>
-        <p class="text-3xl text-highlighted font-semibold">
+        <p class="text-3xl text-highlighted font-semibold" :class="total >= 0 ? 'text-success' : 'text-danger'">
           {{ formatNumber(total) }}
         </p>
       </div>

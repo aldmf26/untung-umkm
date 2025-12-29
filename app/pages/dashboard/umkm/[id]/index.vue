@@ -135,11 +135,25 @@ const columns: TableColumn<ReportRow>[] = [
     accessorKey: "untung_rugi",
     header: "Untung/Rugi",
     cell: ({ row }) =>
-      new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        minimumFractionDigits: 0,
-      }).format(row.original.untung_rugi || 0),
+      row.original.untung_rugi >= 0
+        ? h(
+            "span",
+            { class: "text-green-500" },
+            `+${new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(row.original.untung_rugi || 0)}`
+          )
+        : h(
+            "span",
+            { class: "text-red-500" },
+            `-${new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(Math.abs(row.original.untung_rugi) || 0)}`
+          ),
   },
 ];
 
@@ -290,7 +304,7 @@ useHead({
 
             <div class="mt-4 p-3 bg-elevated rounded-lg border">
               <div class="text-sm text-muted">Total Untung Kumulatif</div>
-              <div class="mt-2 text-2xl font-bold">
+              <div class="mt-2 text-2xl font-bold" :class="cumulativeProfit >= 0 ? 'text-success' : 'text-danger'">
                 {{
                   new Intl.NumberFormat("id-ID", {
                     style: "currency",

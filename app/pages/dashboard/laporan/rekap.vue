@@ -166,7 +166,7 @@ const detailColumns: TableColumn<any>[] = [
     cell: ({ row }: any) =>
       h(
         "div",
-        { class: "text-right text-green-600 font-medium" },
+        { class: "text-right text-success font-medium" },
         new Intl.NumberFormat("id-ID", {
           style: "currency",
           currency: "IDR",
@@ -212,7 +212,7 @@ const detailColumns: TableColumn<any>[] = [
         {
           class:
             "text-right font-semibold " +
-            (v >= 0 ? "text-green-600" : "text-red-600"),
+            (v >= 0 ? "text-success" : "text-error"),
         },
         new Intl.NumberFormat("id-ID", {
           style: "currency",
@@ -284,7 +284,7 @@ useHead({
             <div class="flex items-start justify-between">
               <div class="">
                 <p class="text-sm">Total Pembayaran</p>
-                <p class="text-2xl font-bold text-green-600 mt-2">
+                <p class="text-2xl font-bold text-success mt-2">
                   {{ fmtMoney(totalPembayaranAll) }}
                 </p>
                 <p class="text-xs text-muted mt-1">Dari klien ke admin</p>
@@ -323,7 +323,7 @@ useHead({
                 <p
                   class="text-2xl font-bold mt-2"
                   :class="
-                    totalProfitAll >= 0 ? 'text-green-600' : 'text-red-600'
+                    totalProfitAll >= 0 ? 'text-success' : 'text-error'
                   "
                 >
                   {{ fmtMoney(totalProfitAll) }}
@@ -368,7 +368,7 @@ useHead({
                   <p
                     class="font-semibold text-sm"
                     :class="
-                      item.total_profit >= 0 ? 'text-green-600' : 'text-red-600'
+                      item.total_profit >= 0 ? 'text-success' : 'text-error'
                     "
                   >
                     {{ fmtMoney(item.total_profit) }}
@@ -415,7 +415,7 @@ useHead({
                   </div>
                 </div>
                 <div class="text-right">
-                  <p class="font-semibold text-sm text-green-600">
+                  <p class="font-semibold text-sm text-success">
                     {{ fmtMoney(item.total_pembayaran) }}
                   </p>
                 </div>
