@@ -353,7 +353,7 @@ useHead({
               >
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-8 h-8 rounded-full bg-success flex items-center justify-center font-bold text-sm"
+                    class="w-8 h-8 rounded-full bg-success text-white flex items-center justify-center font-bold text-sm"
                   >
                     {{ idx + 1 }}
                   </div>
@@ -393,7 +393,7 @@ useHead({
               >
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold text-sm"
+                    class="w-8 h-8 rounded-full bg-success flex items-center justify-center text-white font-bold text-sm"
                   >
                     {{ idx + 1 }}
                   </div>
@@ -438,7 +438,7 @@ useHead({
               >
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-8 h-8 rounded-full bg-success flex items-center justify-center font-bold text-sm"
+                    class="w-8 h-8 rounded-full bg-success text-white flex items-center justify-center font-bold text-sm"
                   >
                     {{ idx + 1 }}
                   </div>
