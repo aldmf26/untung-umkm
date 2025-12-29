@@ -9,6 +9,12 @@ const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 
+// If `payment_id` is present in query, we're editing
+const paymentId = ref<string | null>(
+  (route.query.payment_id as string) || (route.query.id as string) || null
+);
+const isEditing = computed(() => !!paymentId.value);
+
 // Schema validasi
 const schema = z.object({
   umkm_id: z.string().min(1, "Pilih UMKM"),
@@ -72,10 +78,40 @@ function fmtMoney(n: number) {
   }).format(n);
 }
 
-onMounted(() => {
-  if (!state.tanggal_bayar) {
-    state.tanggal_bayar = new Date().toISOString().split("T")[0];
+onMounted(async () => {
+  // If editing, fetch existing payment and populate state
+  if (paymentId.value) {
+    try {
+      const { data: p, error } = await supabase
+        .from("payments")
+        .select("*")
+        .eq("id", paymentId.value)
+        .single();
+      if (error) throw error;
+      state.umkm_id = p.umkm_id;
+      state.jumlah = Number(p.jumlah || 0);
+      // Ensure date is in YYYY-MM-DD format if possible
+      state.tanggal_bayar = p.tanggal_bayar
+        ? p.tanggal_bayar.toString().split("T")[0]
+        : undefined;
+      state.periode = p.periode || undefined;
+      state.keterangan = p.keterangan || undefined;
+    } catch (err: any) {
+      toast.add({
+        title: "Gagal memuat pembayaran",
+        description: err.message,
+        color: "error",
+      });
+    }
+  } else {
+    if (!state.tanggal_bayar) {
+      state.tanggal_bayar = new Date().toISOString().split("T")[0];
+    }
   }
+
+  // Allow preselecting umkm via query param when creating or editing
+  if (!state.umkm_id && route.query.umkm_id)
+    state.umkm_id = route.query.umkm_id as string;
 });
 const selectedUmkm = computed(() => {
   return umkmList.value?.find((u: any) => u.id === state.umkm_id);
@@ -117,23 +153,35 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       keterangan: event.data.keterangan || null,
     };
 
-    const { error } = await supabase.from("payments").insert(payload as any);
+    if (paymentId.value) {
+      const { error } = await supabase
+        .from("payments")
+        .update(payload as any)
+        .eq("id", paymentId.value);
+      if (error) throw error;
 
-    if (error) throw error;
+      toast.add({
+        title: "Pembayaran Diperbarui!",
+        description: `Pembayaran untuk ${selectedUmkm.value?.nama_usaha} telah diperbarui`,
+        color: "success",
+        icon: "i-heroicons-check-circle",
+      });
+    } else {
+      const { error } = await supabase.from("payments").insert(payload as any);
+      if (error) throw error;
 
-    toast.add({
-      title: "Pembayaran Tersimpan!",
-      description: `Pembayaran untuk ${
-        (selectedUmkm.value as any)?.nama_usaha
-      } telah tercatat`,
-      color: "success",
-      icon: "i-heroicons-check-circle",
-    });
+      toast.add({
+        title: "Pembayaran Tersimpan!",
+        description: `Pembayaran untuk ${selectedUmkm.value?.nama_usaha} telah tercatat`,
+        color: "success",
+        icon: "i-heroicons-check-circle",
+      });
+    }
 
     router.push("/dashboard/payments");
   } catch (error: any) {
     toast.add({
-      title: "Gagal Menyimpan",
+      title: paymentId.value ? "Gagal Memperbarui" : "Gagal Menyimpan",
       description: error.message,
       color: "error",
     });
@@ -146,7 +194,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar title="Catat Pembayaran">
+      <UDashboardNavbar
+        :title="isEditing ? 'Edit Pembayaran' : 'Catat Pembayaran'"
+      >
         <template #right>
           <UButton
             to="/dashboard/payments"

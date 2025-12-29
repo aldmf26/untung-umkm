@@ -20,7 +20,7 @@ const items = [
     {
       label: "New customer",
       icon: "i-lucide-user-plus",
-      to: "/dashboard/umkm",
+      to: "/dashboard/customers/input",
     },
   ],
 ] satisfies DropdownMenuItem[][];

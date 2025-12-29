@@ -5,6 +5,8 @@ import type { TableColumn } from "@nuxt/ui";
 import { getPaginationRowModel } from "@tanstack/table-core";
 import type { Row } from "@tanstack/table-core";
 
+const router = useRouter();
+
 const supabase = useSupabaseClient();
 const toast = useToast();
 const table = useTemplateRef("table");
@@ -116,6 +118,16 @@ const paymentColumns: TableColumn<any>[] = [
     header: "Aksi",
     cell: ({ row }) =>
       h("div", { class: "flex items-center gap-2" }, [
+        h(
+          UButton,
+          {
+            size: "xs",
+            variant: "ghost",
+            // Open payments input page for editing this payment
+            onClick: () => goToInput(row.original.umkm_id, row.original.id),
+          },
+          { default: () => "Edit" }
+        ),
         h(UButton, {
           icon: "i-heroicons-trash",
           color: "error",
@@ -160,6 +172,13 @@ async function deleteSelectedPayments() {
   refresh();
 }
 
+function goToInput(umkmId?: string, paymentId?: string) {
+  const query: any = {};
+  if (umkmId) query.umkm_id = umkmId;
+  if (paymentId) query.payment_id = paymentId;
+  router.push({ path: "/dashboard/payments/input", query });
+}
+
 const columnFilters = ref([]);
 const columnVisibility = ref({});
 const rowSelection = ref({});
@@ -194,7 +213,6 @@ const searchQuery = computed({
               icon="i-heroicons-plus"
               label="Catat Pembayaran"
             />
-
           </div>
         </template>
       </UDashboardNavbar>

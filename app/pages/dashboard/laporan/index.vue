@@ -229,7 +229,8 @@ const columns: TableColumn<Report>[] = [
           {
             size: "xs",
             variant: "ghost",
-            onClick: () => openEditReport(row.original),
+            // Navigate to input page and pass report id + umkm id so the input page can load for editing
+            onClick: () => goToInput(row.original.umkm_id, row.original.id),
           },
           { default: () => "Edit" }
         ),
@@ -321,10 +322,13 @@ function goToUmkm(id: string) {
   router.push(`/dashboard/umkm/${id}`);
 }
 
-function goToInput(umkmId?: string) {
+function goToInput(umkmId?: string, reportId?: string) {
+  const query: any = {};
+  if (umkmId) query.umkm_id = umkmId;
+  if (reportId) query.report_id = reportId;
   const to = {
     path: "/dashboard/laporan/input",
-    query: umkmId ? { umkm_id: umkmId } : {},
+    query,
   };
   router.push(to);
 }
@@ -342,10 +346,6 @@ function goToInput(umkmId?: string) {
               icon="i-heroicons-plus"
               @click="() => goToInput()"
             />
-
-            
-
-           
           </div>
         </template>
       </UDashboardNavbar>

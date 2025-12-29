@@ -11,6 +11,12 @@ const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 
+// If `report_id` is present in the query, we're editing an existing report
+const reportId = ref<string | null>(
+  (route.query.report_id as string) || (route.query.id as string) || null
+);
+const isEditing = computed(() => !!reportId.value);
+
 // Schema validasi
 const schema = z.object({
   umkm_id: z.string().min(1, "Pilih UMKM"),
@@ -118,16 +124,47 @@ const whatsappPreview = computed(() => {
   }\n\n💡 *Saran:*\n${state.saran || "-"}`;
 });
 
-// Set periode minggu ini otomatis
-onMounted(() => {
-  const today = new Date();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - today.getDay() + 1);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
+// Set periode minggu ini otomatis OR load report if editing
+onMounted(async () => {
+  // If editing, load the report; otherwise set default week
+  if (reportId.value) {
+    try {
+      const { data: r, error } = await supabase
+        .from("weekly_reports")
+        .select("*")
+        .eq("id", reportId.value)
+        .single();
+      if (error) throw error;
+      // Populate form state with existing values
+      state.umkm_id = r.umkm_id;
+      state.periode_mulai = r.periode_mulai;
+      state.periode_selesai = r.periode_selesai;
+      state.uang_masuk = Number(r.uang_masuk || 0);
+      state.uang_keluar = Number(r.uang_keluar || 0);
+      state.masalah = r.masalah || undefined;
+      state.saran = r.saran || undefined;
+      state.is_partial = !!r.is_partial;
+    } catch (err: any) {
+      toast.add({
+        title: "Gagal memuat laporan",
+        description: err.message,
+        color: "error",
+      });
+    }
+  } else {
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - today.getDay() + 1);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
 
-  state.periode_mulai = monday.toISOString().split("T")[0];
-  state.periode_selesai = sunday.toISOString().split("T")[0];
+    state.periode_mulai = monday.toISOString().split("T")[0];
+    state.periode_selesai = sunday.toISOString().split("T")[0];
+  }
+
+  // Respect incoming umkm_id query if present and not already set by a fetched report
+  if (!state.umkm_id && route.query.umkm_id)
+    state.umkm_id = route.query.umkm_id as string;
 });
 
 // Submit
@@ -135,30 +172,60 @@ const loading = ref(false);
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   loading.value = true;
   try {
-    const { error } = await supabase.from("weekly_reports").insert({
-      umkm_id: event.data.umkm_id,
-      periode_mulai: event.data.periode_mulai,
-      periode_selesai: event.data.periode_selesai,
-      uang_masuk: event.data.uang_masuk,
-      uang_keluar: event.data.uang_keluar,
-      masalah: event.data.masalah || null,
-      saran: event.data.saran,
-      is_partial: event.data.is_partial,
-    });
+    if (reportId.value) {
+      // Update existing report
+      const payload: any = {
+        periode_mulai: event.data.periode_mulai,
+        periode_selesai: event.data.periode_selesai,
+        uang_masuk: event.data.uang_masuk,
+        uang_keluar: event.data.uang_keluar,
+        masalah: event.data.masalah || null,
+        saran: event.data.saran,
+        is_partial: event.data.is_partial,
+      };
 
-    if (error) throw error;
+      const { error } = await supabase
+        .from("weekly_reports")
+        .update(payload)
+        .eq("id", reportId.value);
 
-    toast.add({
-      title: "Laporan Berhasil Disimpan!",
-      description: `Laporan untuk ${selectedUmkm.value?.nama_usaha} telah tersimpan`,
-      color: "success",
-      icon: "i-heroicons-check-circle",
-    });
+      if (error) throw error;
 
-    router.push("/dashboard/laporan");
+      toast.add({
+        title: "Laporan Berhasil Diperbarui!",
+        description: `Laporan untuk ${selectedUmkm.value?.nama_usaha} telah diperbarui`,
+        color: "success",
+        icon: "i-heroicons-check-circle",
+      });
+
+      router.push("/dashboard/laporan");
+    } else {
+      // Create new report (existing behavior)
+      const { error } = await supabase.from("weekly_reports").insert({
+        umkm_id: event.data.umkm_id,
+        periode_mulai: event.data.periode_mulai,
+        periode_selesai: event.data.periode_selesai,
+        uang_masuk: event.data.uang_masuk,
+        uang_keluar: event.data.uang_keluar,
+        masalah: event.data.masalah || null,
+        saran: event.data.saran,
+        is_partial: event.data.is_partial,
+      });
+
+      if (error) throw error;
+
+      toast.add({
+        title: "Laporan Berhasil Disimpan!",
+        description: `Laporan untuk ${selectedUmkm.value?.nama_usaha} telah tersimpan`,
+        color: "success",
+        icon: "i-heroicons-check-circle",
+      });
+
+      router.push("/dashboard/laporan");
+    }
   } catch (error: any) {
     toast.add({
-      title: "Gagal Menyimpan",
+      title: reportId.value ? "Gagal Memperbarui" : "Gagal Menyimpan",
       description: error.message,
       color: "error",
     });
@@ -188,7 +255,9 @@ function copyToWhatsApp() {
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar title="Input Laporan Mingguan">
+      <UDashboardNavbar
+        :title="isEditing ? 'Edit Laporan Mingguan' : 'Input Laporan Mingguan'"
+      >
         <template #right>
           <UButton
             to="/dashboard/laporan"
