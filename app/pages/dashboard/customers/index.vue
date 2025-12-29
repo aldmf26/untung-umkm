@@ -208,8 +208,7 @@ const columns: TableColumn<UMKM>[] = [
     accessorKey: "no_wa",
     header: "No. WhatsApp",
     cell: ({ row }) => {
-      return h("div", { class: "flex items-center gap-2" }, [
-        h("span", { class: "font-mono text-sm" }, row.original.no_wa),
+      return h("div", { class: "flex justify-between" }, [
         h(UButton, {
           icon: "i-simple-icons-whatsapp",
           color: "success",
@@ -223,6 +222,7 @@ const columns: TableColumn<UMKM>[] = [
             window.open(waUrl, "_blank");
           },
         }),
+        h("span", { class: "font-mono text-sm" }, row.original.no_wa),
       ]);
     },
   },
