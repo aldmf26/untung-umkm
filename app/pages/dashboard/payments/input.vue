@@ -2,7 +2,10 @@
 import * as z from "zod";
 import type { FormSubmitEvent } from "@nuxt/ui";
 
-definePageMeta({ layout: "dashboard" });
+definePageMeta({
+  layout: "dashboard",
+  middleware: "auth",
+});
 
 const supabase = useSupabaseClient();
 const route = useRoute();

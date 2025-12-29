@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
 
-definePageMeta({ layout: "dashboard" });
+definePageMeta({
+  layout: "dashboard",
+  middleware: "auth",
+});
 
 const toast = useToast();
 const supabase = useSupabaseClient();

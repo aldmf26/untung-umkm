@@ -4,6 +4,7 @@ import type { FormSubmitEvent } from "@nuxt/ui";
 
 definePageMeta({
   layout: "dashboard",
+  middleware: "auth",
 });
 
 const supabase = useSupabaseClient();

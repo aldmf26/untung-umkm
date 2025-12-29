@@ -34,11 +34,28 @@ const links = [
     },
     {
       label: "Laporan",
-      icon: "i-lucide-file-text",
       to: "/dashboard/laporan",
-      onSelect: () => {
-        open.value = false;
-      },
+      icon: "i-lucide-file-text",
+      defaultOpen: true,
+      type: "trigger",
+      children: [
+        {
+          label: "Rekap",
+          to: "/dashboard/laporan/rekap",
+          exact: true,
+          onSelect: () => {
+            open.value = false;
+          },
+        },
+        {
+          label: "Data Laporan",
+          to: "/dashboard/laporan",
+          exact: true,
+          onSelect: () => {
+            open.value = false;
+          },
+        },
+      ],
     },
     {
       label: "Settings",
