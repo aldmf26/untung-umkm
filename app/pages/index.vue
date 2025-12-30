@@ -104,7 +104,7 @@ const openWa = () => {
     <!-- Mouse reactive + animated background -->
     <img
       src="/images/wa.webp"
-      class="absolute opacity-25 lg:bottom-24 md:bottom-32"
+      class="absolute opacity-30 -z-10 lg:bottom-24 md:bottom-32"
       alt=""
     />
     <main class="max-w-4xl mx-auto px-6 pt-10 pb-20 text-center">
@@ -210,6 +210,151 @@ const openWa = () => {
           <div
             class="absolute -top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/25 blur-[120px] -z-10 rounded-full"
           />
+        </section>
+      </Transition>
+
+      <!-- TESTIMONIALS -->
+      <Transition name="fade-up" appear>
+        <section class="mt-24">
+          <div class="text-center mb-12">
+            <UBadge color="primary" variant="soft" size="lg" class="mb-4">
+              Dipercaya 100+ UMKM
+            </UBadge>
+            <h2 class="text-4xl font-bold">
+              Apa Kata <span class="text-primary">Mereka</span>
+            </h2>
+            <p class="text-muted mt-3">UMKM yang sudah merasakan manfaatnya</p>
+          </div>
+
+          <!-- Testimonial Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <!-- Testimonial 1 -->
+            <UCard class="hover:shadow-xl transition-shadow">
+              <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg"
+                  >
+                    S
+                  </div>
+                  <div>
+                    <div class="font-semibold">Bu Rahmah</div>
+                    <div class="text-xs text-muted">Warung Nasi Kuning</div>
+                  </div>
+                </div>
+
+                <div class="flex gap-1 text-yellow-400">
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                </div>
+
+                <p class="text-sm leading-relaxed text-foreground/90">
+                  "Dulu saya bingung kok untungnya sedikit. Setelah pakai
+                  Laporku, saya tahu mana pengeluaran yang bisa dikurangi.
+                  Sekarang untung naik 30%!"
+                </p>
+
+                <div class="text-xs text-muted pt-2 border-t border-border/40">
+                  📍 Banjarmasin • 3 bulan berlangganan
+                </div>
+              </div>
+            </UCard>
+
+            <!-- Testimonial 2 -->
+            <UCard class="hover:shadow-xl transition-shadow">
+              <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg"
+                  >
+                    B
+                  </div>
+                  <div>
+                    <div class="font-semibold">Ibu Hamdallah</div>
+                    <div class="text-xs text-muted">Pisang Keju</div>
+                  </div>
+                </div>
+
+                <div class="flex gap-1 text-yellow-400">
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                </div>
+
+                <p class="text-sm leading-relaxed text-foreground/90">
+                  "Simpel banget! Tinggal kirim via WA, dapat laporan lengkap.
+                  Saya gak perlu pusing lagi ngitung manual. Recommended!"
+                </p>
+
+                <div class="text-xs text-muted pt-2 border-t border-border/40">
+                  📍 Banjarmasin • 6 bulan berlangganan
+                </div>
+              </div>
+            </UCard>
+
+            <!-- Testimonial 3 -->
+            <UCard class="hover:shadow-xl transition-shadow">
+              <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-lg"
+                  >
+                    R
+                  </div>
+                  <div>
+                    <div class="font-semibold">Mbak Rina</div>
+                    <div class="text-xs text-muted">Warung Soto Kuin Apung</div>
+                  </div>
+                </div>
+
+                <div class="flex gap-1 text-yellow-400">
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                  <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
+                </div>
+
+                <p class="text-sm leading-relaxed text-foreground/90">
+                  "Sarannya sangat membantu! Saya jadi tahu kapan harus stok
+                  banyak dan kapan harus hemat. Untung saya jadi lebih stabil."
+                </p>
+
+                <div class="text-xs text-muted pt-2 border-t border-border/40">
+                  📍 Muara Teweh • 4 bulan berlangganan
+                </div>
+              </div>
+            </UCard>
+          </div>
+
+          <!-- Stats -->
+          <div
+            class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
+          >
+            <div class="text-center">
+              <div class="text-4xl font-bold text-primary">100+</div>
+              <div class="text-sm text-muted mt-1">UMKM Bergabung</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl font-bold text-primary">500+</div>
+              <div class="text-sm text-muted mt-1">Laporan Dikirim</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl font-bold text-primary">98%</div>
+              <div class="text-sm text-muted mt-1">Tingkat Kepuasan</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl font-bold text-primary">30%</div>
+              <div class="text-sm text-muted mt-1">
+                Rata-rata Kenaikan Profit
+              </div>
+            </div>
+          </div>
         </section>
       </Transition>
 

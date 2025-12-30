@@ -304,7 +304,10 @@ useHead({
 
             <div class="mt-4 p-3 bg-elevated rounded-lg border">
               <div class="text-sm text-muted">Total Untung Kumulatif</div>
-              <div class="mt-2 text-2xl font-bold" :class="cumulativeProfit >= 0 ? 'text-success' : 'text-danger'">
+              <div
+                class="mt-2 text-2xl font-bold"
+                :class="cumulativeProfit >= 0 ? 'text-success' : 'text-error'"
+              >
                 {{
                   new Intl.NumberFormat("id-ID", {
                     style: "currency",

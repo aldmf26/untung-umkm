@@ -373,7 +373,7 @@ const columns: TableColumn<Report>[] = [
       row.original.untung_rugi >= 0
         ? h(
             "span",
-            { class: "text-green-500" },
+            { class: "text-success" },
             `+${new Intl.NumberFormat("id-ID", {
               style: "currency",
               currency: "IDR",
@@ -382,7 +382,7 @@ const columns: TableColumn<Report>[] = [
           )
         : h(
             "span",
-            { class: "text-red-500" },
+            { class: "text-error" },
             `-${new Intl.NumberFormat("id-ID", {
               style: "currency",
               currency: "IDR",
