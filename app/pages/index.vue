@@ -243,7 +243,7 @@ const openWa = () => {
                   </div>
                 </div>
 
-                <div class="flex gap-1 text-yellow-400">
+                <div class="flex gap-1 text-warning justify-center">
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
@@ -278,7 +278,7 @@ const openWa = () => {
                   </div>
                 </div>
 
-                <div class="flex gap-1 text-yellow-400">
+                <div class="flex gap-1 text-warning justify-center">
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
@@ -312,7 +312,7 @@ const openWa = () => {
                   </div>
                 </div>
 
-                <div class="flex gap-1 text-yellow-400">
+                <div class="flex gap-1 text-warning justify-center">
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
                   <UIcon name="i-heroicons-star-solid" class="w-4 h-4" />
