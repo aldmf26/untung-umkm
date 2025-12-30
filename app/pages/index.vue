@@ -248,7 +248,9 @@ const openWa = () => {
             <span>Cukup Lewat WhatsApp</span>
           </h1>
 
-          <p class="mt-6 text-lg text-muted max-w-2xl mx-auto leading-relaxed">
+          <p
+            class="mt-6 md:text-lg text-sm text-muted max-w-2xl mx-auto leading-relaxed"
+          >
             Kirim data sederhana, dapat ringkasan dan saran bisnis setiap
             minggu.
           </p>
@@ -259,7 +261,7 @@ const openWa = () => {
               size="xl"
               color="primary"
               icon="i-simple-icons-whatsapp"
-              class="px-10 py-4 md:text-lg text-sm rounded-pointer rounded-2xl shadow-2xl shadow-primary/40"
+              class="px-10 py-4 md:text-lg text-xs rounded-pointer rounded-2xl shadow-2xl shadow-primary/40"
               @click="openWa"
             >
               Mulai Sekarang — Gratis 7 Hari
@@ -452,7 +454,7 @@ const openWa = () => {
     <footer
       class="py-12 border-t border-white/5 text-center text-muted-foreground text-xs tracking-widest"
     >
-      &copy; 2025 LAPORKU • SIMPLE & ELEGANT BUSINESS SOLUTION
+      &copy; 2025 LAPORKU • SIMPLE BUSINESS SOLUTION
     </footer>
   </div>
 </template>
