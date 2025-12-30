@@ -218,9 +218,9 @@ const openWa = () => {
             color="success"
             variant="soft"
             size="lg"
-            class="rounded-full hidden md:block px-4 border border-success/20 animate-pulse"
+            class="rounded-full mt-2 md:text-sm text-xs px-4 border border-success/20 animate-pulse"
           >
-            Satu-satunya Pendamping Keuangan UMKM via WA
+            Pendamping Keuangan UMKM via WA
           </UBadge>
 
           <h1
