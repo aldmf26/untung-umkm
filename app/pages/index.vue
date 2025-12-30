@@ -4,10 +4,8 @@ import gsap from "gsap";
 import { TextPlugin } from "gsap/TextPlugin";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// Register plugin hanya di client side
-if (process.client) {
-  gsap.registerPlugin(TextPlugin, ScrollTrigger);
-}
+gsap.registerPlugin(TextPlugin, ScrollTrigger);
+
 const testiWrapper = ref<HTMLElement | null>(null);
 const testiTrack = ref<HTMLElement | null>(null);
 const testiDots = ref<HTMLElement[]>([]);
