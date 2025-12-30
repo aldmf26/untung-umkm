@@ -136,6 +136,7 @@ onMounted(async () => {
       id="default"
       v-model:open="open"
       collapsible
+      mode="drawer"
       resizable
       class="bg-elevated/25"
       :ui="{ footer: 'lg:border-t lg:border-default' }"

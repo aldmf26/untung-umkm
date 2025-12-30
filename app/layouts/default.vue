@@ -1,17 +1,10 @@
 <template>
-  <UHeader>
+  <UHeader :toggle="false">
     <template #title>
       <AppLogo />
     </template>
 
     <template #right>
-      <UButton
-        to="/login"
-        label="Login"
-        color="primary"
-        variant="ghost"
-        class="mr-2"
-      />
       <UColorModeButton />
     </template>
   </UHeader>
