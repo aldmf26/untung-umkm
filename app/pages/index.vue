@@ -231,12 +231,7 @@ const openWa = () => {
             <!-- Testimonial 1 -->
             <UCard class="hover:shadow-xl transition-shadow">
               <div class="space-y-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg"
-                  >
-                    S
-                  </div>
+                <div class="flex justify-center gap-3">
                   <div>
                     <div class="font-semibold">Bu Rahmah</div>
                     <div class="text-xs text-muted">Warung Nasi Kuning</div>
@@ -266,12 +261,7 @@ const openWa = () => {
             <!-- Testimonial 2 -->
             <UCard class="hover:shadow-xl transition-shadow">
               <div class="space-y-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg"
-                  >
-                    B
-                  </div>
+                <div class="flex justify-center gap-3">
                   <div>
                     <div class="font-semibold">Ibu Hamdallah</div>
                     <div class="text-xs text-muted">Pisang Keju</div>
@@ -300,14 +290,9 @@ const openWa = () => {
             <!-- Testimonial 3 -->
             <UCard class="hover:shadow-xl transition-shadow">
               <div class="space-y-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-lg"
-                  >
-                    R
-                  </div>
+                <div class="flex justify-center gap-3">
                   <div>
-                    <div class="font-semibold">Mbak Rina</div>
+                    <div class="font-semibold">Ibu Rina</div>
                     <div class="text-xs text-muted">Warung Soto Kuin Apung</div>
                   </div>
                 </div>
