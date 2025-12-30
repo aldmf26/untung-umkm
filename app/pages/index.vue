@@ -203,7 +203,7 @@ const openWa = () => {
       <img
         ref="waImage"
         src="/images/wa.webp"
-        class="absolute opacity-20 w-[800px] max-w-none lg:bottom-[-10%] md:bottom-[-5%] transition-opacity duration-1000"
+        class="absolute opacity-20 w-[800px] max-w-none  transition-opacity duration-100"
         alt=""
       />
       <div
