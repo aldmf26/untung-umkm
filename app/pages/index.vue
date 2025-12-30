@@ -8,6 +8,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 if (process.client) {
   gsap.registerPlugin(TextPlugin, ScrollTrigger);
 }
+const testiWrapper = ref<HTMLElement | null>(null);
+const testiTrack = ref<HTMLElement | null>(null);
+const testiDots = ref<HTMLElement[]>([]);
+let testiIndex = 0;
+let testiTl: gsap.core.Tween | null = null;
 
 const testimonialSection = ref<HTMLElement | null>(null);
 const chatUser = ref<HTMLElement | null>(null);
@@ -167,6 +172,57 @@ onMounted(() => {
       );
     });
   }, testimonialSection.value as HTMLElement);
+
+  if (testiWrapper.value) {
+    const cards = gsap.utils.toArray<HTMLElement>(".testi-card");
+    const dots = gsap.utils.toArray<HTMLElement>("[data-dot]");
+    const total = cards.length;
+
+    gsap.set(testiWrapper.value, { display: "flex" });
+    gsap.set(cards, { xPercent: (i) => i * 100 });
+
+    const goTo = (index: number) => {
+      testiIndex = index;
+
+      gsap.to(cards, {
+        xPercent: (i) => (i - testiIndex) * 100,
+        duration: 0.8,
+        ease: "power3.inOut",
+      });
+
+      dots.forEach((d, i) =>
+        d.classList.toggle("bg-primary", i === testiIndex)
+      );
+    };
+
+    // autoplay
+    testiTl = gsap.to(
+      {},
+      {
+        duration: 4,
+        repeat: -1,
+        onRepeat: () => {
+          goTo((testiIndex + 1) % total);
+        },
+      }
+    );
+
+    // dot click
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", () => {
+        testiTl?.restart();
+        goTo(i);
+      });
+    });
+
+    // drag support
+    ScrollTrigger.create({
+      trigger: testiWrapper.value,
+      start: "top bottom",
+      onEnter: () => testiTl?.play(),
+      onLeave: () => testiTl?.pause(),
+    });
+  }
 });
 
 onBeforeUnmount(() => {
@@ -203,7 +259,7 @@ const openWa = () => {
       <img
         ref="waImage"
         src="/images/wa.webp"
-        class="absolute opacity-20 w-[800px] max-w-none  transition-opacity duration-100"
+        class="absolute opacity-20 w-[800px] max-w-none transition-opacity duration-100"
         alt=""
       />
       <div
@@ -338,10 +394,14 @@ const openWa = () => {
             <div class="h-1 w-20 bg-primary mx-auto mt-4 rounded-full"></div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 testi-grid">
+          <div
+            ref="testiWrapper"
+            class="grid grid-cols-1 md:grid-cols-3 gap-8 testi-grid"
+          >
             <UCard
               v-for="(testi, i) in testimonials"
               :key="i"
+              :ref="el => testiDots[i] = el as HTMLElement"
               class="testi-card border-white/5 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
             >
               <div class="space-y-4 py-2">
@@ -374,6 +434,15 @@ const openWa = () => {
                 </div>
               </div>
             </UCard>
+          </div>
+          <div class="flex justify-center gap-2 mt-8">
+            <button
+              v-for="(_, i) in testimonials"
+              :key="i"
+              class="w-2.5 h-2.5 rounded-full bg-white/30 transition-all"
+              :class="{ 'bg-primary scale-125': i === 0 }"
+              data-dot
+            ></button>
           </div>
 
           <div
@@ -483,5 +552,9 @@ div[ref="chatBot1"],
 div[ref="chatBot2"],
 div[ref="chatBot3"] {
   will-change: transform, opacity;
+}
+
+.testi-grid {
+  touch-action: pan-x;
 }
 </style>
