@@ -60,15 +60,6 @@ export default defineNuxtConfig({
     ]
   },
 
-  schemaOrg: {
-    identity: {
-      type: 'Organization',
-      name: 'Laporku',
-      url: 'https://laporku.vercel.app',
-      logo: 'https://laporku.vercel.app/favicon.ico'
-    }
-  },
-
 
   supabase: {
     redirect: false, // Kita handle redirect manual
