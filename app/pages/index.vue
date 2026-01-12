@@ -4,11 +4,12 @@ import gsap from "gsap";
 import { TextPlugin } from "gsap/TextPlugin";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(TextPlugin, ScrollTrigger);
-
+// Register plugin hanya di client side
+if (process.client) {
+  gsap.registerPlugin(TextPlugin, ScrollTrigger);
+}
 const testiWrapper = ref<HTMLElement | null>(null);
 const testiTrack = ref<HTMLElement | null>(null);
-const testiDots = ref<HTMLElement[]>([]);
 let testiIndex = 0;
 let testiTl: gsap.core.Tween | null = null;
 
@@ -170,57 +171,6 @@ onMounted(() => {
       );
     });
   }, testimonialSection.value as HTMLElement);
-
-  if (testiWrapper.value) {
-    const cards = gsap.utils.toArray<HTMLElement>(".testi-card");
-    const dots = gsap.utils.toArray<HTMLElement>("[data-dot]");
-    const total = cards.length;
-
-    gsap.set(testiWrapper.value, { display: "flex" });
-    gsap.set(cards, { xPercent: (i) => i * 100 });
-
-    const goTo = (index: number) => {
-      testiIndex = index;
-
-      gsap.to(cards, {
-        xPercent: (i) => (i - testiIndex) * 100,
-        duration: 0.8,
-        ease: "power3.inOut",
-      });
-
-      dots.forEach((d, i) =>
-        d.classList.toggle("bg-primary", i === testiIndex)
-      );
-    };
-
-    // autoplay
-    testiTl = gsap.to(
-      {},
-      {
-        duration: 4,
-        repeat: -1,
-        onRepeat: () => {
-          goTo((testiIndex + 1) % total);
-        },
-      }
-    );
-
-    // dot click
-    dots.forEach((dot, i) => {
-      dot.addEventListener("click", () => {
-        testiTl?.restart();
-        goTo(i);
-      });
-    });
-
-    // drag support
-    ScrollTrigger.create({
-      trigger: testiWrapper.value,
-      start: "top bottom",
-      onEnter: () => testiTl?.play(),
-      onLeave: () => testiTl?.pause(),
-    });
-  }
 });
 
 onBeforeUnmount(() => {
@@ -265,26 +215,26 @@ const openWa = () => {
       ></div>
     </div>
 
-    <main class="max-w-4xl mx-auto px-6 text-center relative z-10">
+    <main class="max-w-4xl mx-auto px-4 md:px-6 text-center relative z-10">
       <Transition name="fade-up" appear>
-        <section>
+        <section class="pt-6 md:pt-0">
           <UBadge
             color="success"
             variant="soft"
             size="lg"
-            class="rounded-full mt-2 md:text-sm text-xs px-4 border border-success/20 animate-pulse"
+            class="rounded-full mt-2 text-[10px] md:text-sm px-3 md:px-4 py-1 border border-success/20 animate-pulse"
           >
             Pendamping Keuangan UMKM via WA
           </UBadge>
 
           <h1
-            class="text-4xl md:text-7xl font-extrabold tracking-tight leading-tight"
+            class="text-3xl md:text-7xl font-extrabold tracking-tight leading-tight mt-4"
           >
             Kelola
             <span class="text-primary relative inline-block"
               >Untung
               <svg
-                class="absolute -bottom-2 left-0 w-full"
+                class="absolute -bottom-1 md:-bottom-2 left-0 w-full"
                 height="8"
                 viewBox="0 0 100 8"
                 preserveAspectRatio="none"
@@ -303,19 +253,19 @@ const openWa = () => {
           </h1>
 
           <p
-            class="mt-6 md:text-lg text-sm text-muted max-w-2xl mx-auto leading-relaxed"
+            class="mt-4 md:mt-6 text-sm md:text-lg text-muted max-w-2xl mx-auto leading-relaxed px-2"
           >
             Kirim data sederhana, dapat ringkasan dan saran bisnis setiap
             minggu.
           </p>
 
-          <div class="pt-4">
+          <div class="pt-6 md:pt-4">
             <UButton
               ref="ctaButton"
               size="xl"
               color="primary"
               icon="i-simple-icons-whatsapp"
-              class="px-10 py-4 md:text-lg text-xs rounded-pointer rounded-2xl shadow-2xl shadow-primary/40"
+              class="px-6 md:px-10 py-3 md:py-4 text-sm md:text-lg rounded-2xl shadow-2xl shadow-primary/40"
               @click="openWa"
             >
               Mulai Sekarang — Gratis 7 Hari
@@ -325,9 +275,9 @@ const openWa = () => {
       </Transition>
 
       <Transition name="fade-up" appear>
-        <section class="mt-14 relative flex justify-center">
+        <section class="mt-8 md:mt-14 relative flex justify-center px-2">
           <div
-            class="relative z-10 w-full max-w-[500px] md:min-h-[460px] min-h-[500px] rounded-2xl overflow-hidden bg-gradient-to-br from-background/90 to-background/70 backdrop-blur-md shadow-[0_30px_80px_-30px_RGBA(0,0,0,0.5)] border border-border/40"
+            class="relative z-10 w-full max-w-[500px] md:min-h-[460px] min-h-[520px] rounded-2xl overflow-hidden bg-gradient-to-br from-background/90 to-background/70 backdrop-blur-md shadow-[0_30px_80px_-30px_RGBA(0,0,0,0.5)] border border-border/40"
           >
             <div
               class="flex items-center gap-3 px-4 py-3 border-b border-border/40 bg-background/70"
@@ -386,39 +336,38 @@ const openWa = () => {
       </Transition>
 
       <Transition name="fade-up" appear>
-        <section ref="testimonialSection" class="mt-32">
-          <div class="mb-16 text-center">
-            <h2 class="text-3xl font-bold">Dipercaya Ratusan UMKM Lokal</h2>
+        <section ref="testimonialSection" class="mt-16 md:mt-32 px-2">
+          <div class="mb-8 md:mb-16 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold">Dipercaya Ratusan UMKM Lokal</h2>
             <div class="h-1 w-20 bg-primary mx-auto mt-4 rounded-full"></div>
           </div>
 
           <div
             ref="testiWrapper"
-            class="grid grid-cols-1 md:grid-cols-3 gap-8 testi-grid"
+            class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 testi-grid"
           >
             <UCard
               v-for="(testi, i) in testimonials"
               :key="i"
-              :ref="el => testiDots[i] = el as HTMLElement"
               class="testi-card border-white/5 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
             >
-              <div class="space-y-4 py-2">
+              <div class="space-y-3 md:space-y-4 py-2">
                 <div class="flex flex-col items-center gap-1 text-center">
-                  <span class="font-bold text-lg text-foreground">{{
+                  <span class="font-bold text-base md:text-lg text-foreground">{{
                     testi.name
                   }}</span>
                   <span
-                    class="text-xs text-primary/80 uppercase tracking-widest"
+                    class="text-[10px] md:text-xs text-primary/80 uppercase tracking-widest"
                     >{{ testi.business }}</span
                   >
                 </div>
                 <p
-                  class="text-sm leading-relaxed opacity-80 italic text-center"
+                  class="text-xs md:text-sm leading-relaxed opacity-80 italic text-center"
                 >
                   "{{ testi.quote }}"
                 </p>
                 <div
-                  class="pt-4 border-t border-border/40 flex justify-between items-center text-[10px] text-muted-foreground uppercase tracking-tighter"
+                  class="pt-3 md:pt-4 border-t border-border/40 flex justify-between items-center text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-tighter"
                 >
                   <span>{{ testi.location }}</span>
                   <div class="flex text-warning">
@@ -426,36 +375,27 @@ const openWa = () => {
                       v-for="s in 5"
                       :key="s"
                       name="i-heroicons-star-solid"
-                      class="w-3 h-3"
+                      class="w-2.5 h-2.5 md:w-3 md:h-3"
                     />
                   </div>
                 </div>
               </div>
             </UCard>
           </div>
-          <div class="flex justify-center gap-2 mt-8">
-            <button
-              v-for="(_, i) in testimonials"
-              :key="i"
-              class="w-2.5 h-2.5 rounded-full bg-white/30 transition-all"
-              :class="{ 'bg-primary scale-125': i === 0 }"
-              data-dot
-            ></button>
-          </div>
 
           <div
-            class="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 bg-white/5 p-10 rounded-3xl border border-white/5"
+            class="mt-12 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 bg-white/5 p-6 md:p-10 rounded-3xl border border-white/5"
           >
             <div v-for="stat in stats" :key="stat.label">
               <div
-                class="text-4xl font-black text-primary stat-number"
+                class="text-2xl md:text-4xl font-black text-primary stat-number"
                 :data-target="stat.val"
                 :data-suffix="stat.suffix"
               >
                 0
               </div>
               <div
-                class="text-xs text-muted-foreground mt-2 uppercase tracking-widest font-medium"
+                class="text-[9px] md:text-xs text-muted-foreground mt-1 md:mt-2 uppercase tracking-widest font-medium"
               >
                 {{ stat.label }}
               </div>
@@ -465,7 +405,7 @@ const openWa = () => {
       </Transition>
 
       <Transition name="fade-up" appear>
-        <section class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
+        <section class="mt-12 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12 text-left px-2">
           <UCard
             class="space-y-3 text-center md:text-left shadow-sm rounded-2xl border border-success"
           >
@@ -519,7 +459,7 @@ const openWa = () => {
     <!-- FEATURES -->
 
     <footer
-      class="py-12 border-t border-white/5 text-center text-muted-foreground text-xs tracking-widest"
+      class="py-8 md:py-12 mt-12 md:mt-0 border-t border-white/5 text-center text-muted-foreground text-[10px] md:text-xs tracking-widest"
     >
       &copy; 2025 LAPORKU • SIMPLE BUSINESS SOLUTION
     </footer>
@@ -550,9 +490,5 @@ div[ref="chatBot1"],
 div[ref="chatBot2"],
 div[ref="chatBot3"] {
   will-change: transform, opacity;
-}
-
-.testi-grid {
-  touch-action: pan-x;
 }
 </style>
