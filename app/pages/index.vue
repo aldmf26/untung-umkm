@@ -354,7 +354,7 @@ const openWa = (plan?: string) => {
               @click="openWa()"
             >
               <img src="/images/wabold.gif" class="w-10" alt="" />
-              Mulai Sekarang — Gratis 1 Minggu
+              Mulai Sekarang — Gratis 2 Minggu
             </UButton>
           </div>
         </section>
