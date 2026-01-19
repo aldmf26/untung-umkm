@@ -19,28 +19,56 @@ const chatBot1 = ref<HTMLElement | null>(null);
 const chatBot2 = ref<HTMLElement | null>(null);
 const chatBot3 = ref<HTMLElement | null>(null);
 const waImage = ref<HTMLElement | null>(null); // Ref baru untuk gambar WA
+const pricingSection = ref<HTMLElement | null>(null);
 
 const testimonials = [
   {
-    name: "Bu Rahmah",
-    business: "Warung Nasi Kuning",
+    name: "Pa Rahman",
+    business: "Warung Maju",
     quote:
-      "Dulu bingung untung lari kemana. Sekarang tiap minggu dapat laporan rapi di WA.",
+      "Untung saya naik 3x lipat! Dari awalnya bingung, sekarang jelas kemana uang mengalir. Laporan mingguannya membantu banget buat ambil keputusan stok.",
     location: "Banjarmasin",
+    profit: "Rp 3.900.000",
   },
   {
-    name: "Ibu Hamdallah",
-    business: "Cemilan Pisang",
+    name: "Pak Andi",
+    business: "Toko Sumber Rezeki",
     quote:
-      "Inputnya gampang banget, tinggal ketik kayak chat biasa. Sangat terbantu!",
+      "Setelah pakai Laporku, saya tahu kapan harus beli stok dan kapan harus hemat. Profit meningkat stabil setiap minggu.",
     location: "Banjarmasin",
+    profit: "Rp 3.100.000",
   },
   {
-    name: "Ibu Rina",
-    business: "Soto Kuin Apung",
+    name: "Pak Budi",
+    business: "Warung Pak Budi",
     quote:
-      "Saran strateginya jitu! Saya jadi berani stok barang lebih banyak saat murah.",
+      "Gampang banget inputnya, tinggal chat aja. Laporan lengkap langsung dikirim. Anak saya yang bantu juga ngerti cara pakainya.",
     location: "Muara Teweh",
+    profit: "Rp 2.500.000",
+  },
+  {
+    name: "Mbak Hamdallah",
+    business: "Pisang Keju Kaca HKSN",
+    quote:
+      "Baru coba trial udah langsung keliatan hasilnya. Sekarang tau persis untung bersih tiap minggu. Recommended!",
+    location: "Banjarmasin",
+    profit: "Rp 150.000",
+  },
+  {
+    name: "Bu Sari",
+    business: "Toko Hj Norma",
+    quote:
+      "Sempat rugi di awal, tapi berkat saran dari Laporku, sekarang udah mulai naik lagi. Terima kasih supportnya!",
+    location: "Palangkaraya",
+    profit: "Lagi perbaikan",
+  },
+  {
+    name: "Ibu Fatimah",
+    business: "Kue Basah Bu Fat",
+    quote:
+      "Dulu cuma pencatat di buku, sering keselip. Sekarang rapi semua di HP, bisa lihat history kapan aja.",
+    location: "Banjarmasin",
+    profit: "Rp 1.500.000",
   },
 ];
 
@@ -49,6 +77,50 @@ const stats = [
   { val: 500, suffix: "+", label: "Laporan Terproses" },
   { val: 98, suffix: "%", label: "Kepuasan User" },
   { val: 30, suffix: "%", label: "Kenaikan Profit" },
+];
+
+const pricingPlans = [
+  {
+    name: "Trial",
+    price: "GRATIS",
+    period: "2 Minggu Pertama",
+    features: [
+      "Laporan mingguan via WhatsApp",
+      "Ringkasan untung/rugi",
+      "Saran bisnis dasar",
+      "Support chat",
+    ],
+    highlight: false,
+    cta: "Coba Gratis",
+  },
+  {
+    name: "Bulanan",
+    price: "50K",
+    period: "per bulan",
+    features: [
+      "Semua fitur Trial",
+      "Analisis tren bulanan",
+      "Rekomendasi strategi",
+      "Priority support",
+      "Export data Excel",
+    ],
+    highlight: true,
+    popular: true,
+    cta: "Mulai Berlangganan",
+  },
+  {
+    name: "Mingguan",
+    price: "15K",
+    period: "per minggu",
+    features: [
+      "Laporan mingguan via WhatsApp",
+      "Ringkasan untung/rugi",
+      "Saran bisnis praktis",
+      "Support chat",
+    ],
+    highlight: false,
+    cta: "Pilih Paket Ini",
+  },
 ];
 
 // Mouse reactive logic
@@ -117,17 +189,17 @@ onMounted(() => {
       .to(
         chatBot1.value,
         { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
-        "+=0.5"
+        "+=0.5",
       )
       .to(
         chatBot2.value,
         { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
-        "-=0.2"
+        "-=0.2",
       )
       .to(
         chatBot3.value,
         { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
-        "-=0.2"
+        "-=0.2",
       )
 
       // Stay sejenak lalu fade out semua
@@ -150,6 +222,16 @@ onMounted(() => {
       ease: "back.out(1.2)",
     });
 
+    // Animasi Pricing Cards
+    gsap.from(".pricing-card", {
+      scrollTrigger: { trigger: ".pricing-grid", start: "top 85%" },
+      y: 60,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: "back.out(1.2)",
+    });
+
     document.querySelectorAll(".stat-number").forEach((stat) => {
       const target = parseInt(stat.getAttribute("data-target") || "0");
       const suffix = stat.getAttribute("data-suffix") || "";
@@ -164,10 +246,10 @@ onMounted(() => {
           onUpdate: function () {
             stat.innerHTML =
               new Intl.NumberFormat("id-ID").format(
-                Math.ceil(Number(stat.innerText))
+                Math.ceil(Number(stat.innerText)),
               ) + suffix;
           },
-        }
+        },
       );
     });
   }, testimonialSection.value as HTMLElement);
@@ -188,12 +270,16 @@ useHead({
   ],
 });
 
-const openWa = () => {
+const openWa = (plan?: string) => {
   const no = "62895413111053";
-  const msg = encodeURIComponent(
-    "Halo, admin Laporku. Saya ingin bertanya tentang berlangganan atau ingin meminta bantuan lainnya. Bisa dibantu?"
-  );
-  window.open(`https://wa.me/${no}?text=${msg}`, "_blank");
+  let msg =
+    "Halo, admin Laporku. Saya ingin bertanya tentang berlangganan atau ingin meminta bantuan lainnya. Bisa dibantu?";
+
+  if (plan) {
+    msg = `Halo admin Laporku, saya tertarik dengan paket ${plan}. Bisa dibantu untuk proses selanjutnya?`;
+  }
+
+  window.open(`https://wa.me/${no}?text=${encodeURIComponent(msg)}`, "_blank");
 };
 </script>
 
@@ -264,16 +350,17 @@ const openWa = () => {
               ref="ctaButton"
               size="xl"
               color="primary"
-              icon="i-simple-icons-whatsapp"
               class="px-6 md:px-10 py-3 md:py-4 text-sm md:text-lg rounded-2xl shadow-2xl shadow-primary/40"
-              @click="openWa"
+              @click="openWa()"
             >
-              Mulai Sekarang — Gratis 7 Hari
+              <img src="/images/wabold.gif" class="w-10" alt="" />
+              Mulai Sekarang — Gratis 1 Minggu
             </UButton>
           </div>
         </section>
       </Transition>
 
+      <!-- CHAT DEMO SECTION -->
       <Transition name="fade-up" appear>
         <section class="mt-8 md:mt-14 relative flex justify-center px-2">
           <div
@@ -335,56 +422,222 @@ const openWa = () => {
         </section>
       </Transition>
 
+      <!-- PRICING SECTION -->
       <Transition name="fade-up" appear>
-        <section ref="testimonialSection" class="mt-16 md:mt-32 px-2">
-          <div class="mb-8 md:mb-16 text-center">
-            <h2 class="text-2xl md:text-3xl font-bold">Dipercaya Ratusan UMKM Lokal</h2>
+        <section ref="pricingSection" class="mt-16 md:mt-32 px-2">
+          <div class="mb-8 md:mb-12 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold">
+              Pilih Paket yang Sesuai
+            </h2>
+            <p class="text-sm md:text-base text-muted mt-2">
+              Mulai gratis, lanjut dengan harga terjangkau
+            </p>
             <div class="h-1 w-20 bg-primary mx-auto mt-4 rounded-full"></div>
           </div>
 
           <div
-            ref="testiWrapper"
-            class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 testi-grid"
+            class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 pricing-grid"
           >
             <UCard
-              v-for="(testi, i) in testimonials"
+              v-for="(plan, i) in pricingPlans"
               :key="i"
-              class="testi-card border-white/5 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
+              class="pricing-card relative border-white/5 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300"
+              :class="{
+                'border-primary border-2 shadow-2xl shadow-primary/20 scale-105':
+                  plan.highlight,
+                'hover:scale-105': !plan.highlight,
+              }"
             >
-              <div class="space-y-3 md:space-y-4 py-2">
-                <div class="flex flex-col items-center gap-1 text-center">
-                  <span class="font-bold text-base md:text-lg text-foreground">{{
-                    testi.name
-                  }}</span>
-                  <span
-                    class="text-[10px] md:text-xs text-primary/80 uppercase tracking-widest"
-                    >{{ testi.business }}</span
-                  >
-                </div>
-                <p
-                  class="text-xs md:text-sm leading-relaxed opacity-80 italic text-center"
+              <div
+                v-if="plan.popular"
+                class="absolute -top-0.5 pt-2 left-1/2 -translate-x-1/2"
+              >
+                <UBadge
+                  color="primary"
+                  variant="solid"
+                  size="sm"
+                  class="rounded-full px-3 py-1 text-[10px] font-bold"
                 >
-                  "{{ testi.quote }}"
-                </p>
-                <div
-                  class="pt-3 md:pt-4 border-t border-border/40 flex justify-between items-center text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-tighter"
-                >
-                  <span>{{ testi.location }}</span>
-                  <div class="flex text-warning">
-                    <UIcon
-                      v-for="s in 5"
-                      :key="s"
-                      name="i-heroicons-star-solid"
-                      class="w-2.5 h-2.5 md:w-3 md:h-3"
-                    />
+                  PALING POPULER
+                </UBadge>
+              </div>
+
+              <div class="space-y-4 md:space-y-6 py-4">
+                <div class="text-center">
+                  <h3 class="text-lg md:text-xl font-bold text-foreground mb-2">
+                    {{ plan.name }}
+                  </h3>
+                  <div class="flex items-baseline justify-center gap-1">
+                    <span class="text-3xl md:text-5xl font-black text-primary">
+                      {{ plan.price }}
+                    </span>
                   </div>
+                  <p
+                    class="text-[10px] md:text-xs text-muted-foreground mt-1 uppercase tracking-wider"
+                  >
+                    {{ plan.period }}
+                  </p>
+                </div>
+
+                <div class="space-y-2.5 md:space-y-3 px-2">
+                  <div
+                    v-for="(feature, idx) in plan.features"
+                    :key="idx"
+                    class="flex items-start gap-2 text-left"
+                  >
+                    <UIcon
+                      name="i-heroicons-check-circle-solid"
+                      class="w-4 h-4 md:w-5 md:h-5 text-success shrink-0 mt-0.5"
+                    />
+                    <span class="text-xs md:text-sm text-foreground/90">
+                      {{ feature }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="pt-4">
+                  <UButton
+                    :color="plan.highlight ? 'primary' : 'white'"
+                    :variant="plan.highlight ? 'solid' : 'outline'"
+                    size="lg"
+                    block
+                    class="rounded-xl font-semibold"
+                    @click="openWa(plan.name)"
+                  >
+                    {{ plan.cta }}
+                  </UButton>
                 </div>
               </div>
             </UCard>
           </div>
 
+          <div class="mt-8 text-center">
+            <p class="text-xs md:text-sm text-muted-foreground">
+              💡 <b>Tips:</b> Paket bulanan lebih hemat Rp10.000 dibanding bayar
+              mingguan
+            </p>
+          </div>
+        </section>
+      </Transition>
+
+      <!-- TESTIMONIAL SECTION -->
+      <Transition name="fade-up" appear>
+        <section ref="testimonialSection" class="mt-16 md:mt-32">
+          <div class="mb-8 md:mb-16 text-center px-2">
+            <h2 class="text-2xl md:text-3xl font-bold">
+              Dipercaya Ratusan UMKM Lokal
+            </h2>
+            <div class="h-1 w-20 bg-primary mx-auto mt-4 rounded-full"></div>
+          </div>
+
+          <!-- Mobile: Grid biasa, Desktop: Carousel -->
+          <div class="block md:hidden px-2">
+            <div class="grid grid-cols-1 gap-4 testi-grid">
+              <UCard
+                v-for="(testi, i) in testimonials.slice(0, 3)"
+                :key="i"
+                class="testi-card border-white/5 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
+              >
+                <div class="space-y-3 py-2">
+                  <div class="flex flex-col items-center gap-1 text-center">
+                    <span class="font-bold text-base text-foreground">
+                      {{ testi.name }}
+                    </span>
+                    <span
+                      class="text-[10px] text-primary/80 uppercase tracking-widest"
+                    >
+                      {{ testi.business }}
+                    </span>
+                  </div>
+                  <p
+                    class="text-xs leading-relaxed opacity-80 italic text-center"
+                  >
+                    "{{ testi.quote }}"
+                  </p>
+                  <div class="pt-3 border-t border-border/40">
+                    <div
+                      class="flex justify-between items-center text-[9px] text-muted-foreground uppercase tracking-tighter mb-2"
+                    >
+                      <span>📍 {{ testi.location }}</span>
+                      <div class="flex text-warning">
+                        <UIcon
+                          v-for="s in 5"
+                          :key="s"
+                          name="i-heroicons-star-solid"
+                          class="w-2.5 h-2.5"
+                        />
+                      </div>
+                    </div>
+                    <div class="text-center">
+                      <span class="text-xs font-semibold text-success">
+                        💰 {{ testi.profit }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </UCard>
+            </div>
+          </div>
+
+          <!-- Desktop: Carousel -->
+          <div class="hidden md:block px-2">
+            <UCarousel
+              v-slot="{ item }"
+              :items="testimonials"
+              :ui="{
+                item: 'basis-1/3',
+                container: 'gap-6',
+              }"
+              class="testi-carousel"
+              loop
+              :autoplay="{ delay: 2000 }"
+            >
+              <UCard
+                class="border-white/5 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 h-full"
+              >
+                <div class="space-y-4 py-2">
+                  <div class="flex flex-col items-center gap-1 text-center">
+                    <span class="font-bold text-lg text-foreground">
+                      {{ item.name }}
+                    </span>
+                    <span
+                      class="text-xs text-primary/80 uppercase tracking-widest"
+                    >
+                      {{ item.business }}
+                    </span>
+                  </div>
+                  <p
+                    class="text-sm leading-relaxed opacity-80 italic text-center min-h-[100px]"
+                  >
+                    "{{ item.quote }}"
+                  </p>
+                  <div class="pt-4 border-t border-border/40">
+                    <div
+                      class="flex justify-between items-center text-[10px] text-muted-foreground uppercase tracking-tighter mb-2"
+                    >
+                      <span>📍 {{ item.location }}</span>
+                      <div class="flex text-warning">
+                        <UIcon
+                          v-for="s in 5"
+                          :key="s"
+                          name="i-heroicons-star-solid"
+                          class="w-3 h-3"
+                        />
+                      </div>
+                    </div>
+                    <div class="text-center">
+                      <span class="text-xs font-semibold text-success">
+                        💰 {{ item.profit }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </UCard>
+            </UCarousel>
+          </div>
+
           <div
-            class="mt-12 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 bg-white/5 p-6 md:p-10 rounded-3xl border border-white/5"
+            class="mt-12 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 bg-white/5 p-6 md:p-10 rounded-3xl border border-white/5 mx-2"
           >
             <div v-for="stat in stats" :key="stat.label">
               <div
@@ -404,8 +657,11 @@ const openWa = () => {
         </section>
       </Transition>
 
+      <!-- BENEFIT SECTION -->
       <Transition name="fade-up" appear>
-        <section class="mt-12 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12 text-left px-2">
+        <section
+          class="mt-12 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12 text-left px-2"
+        >
           <UCard
             class="space-y-3 text-center md:text-left shadow-sm rounded-2xl border border-success"
           >
@@ -455,8 +711,6 @@ const openWa = () => {
         </section>
       </Transition>
     </main>
-
-    <!-- FEATURES -->
 
     <footer
       class="py-8 md:py-12 mt-12 md:mt-0 border-t border-white/5 text-center text-muted-foreground text-[10px] md:text-xs tracking-widest"

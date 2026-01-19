@@ -17,7 +17,7 @@ const UModal = resolveComponent("UModal");
 
 // If `report_id` is present in the query, we're editing an existing report
 const reportId = ref<string | null>(
-  (route.query.report_id as string) || (route.query.id as string) || null
+  (route.query.report_id as string) || (route.query.id as string) || null,
 );
 const isEditing = computed(() => !!reportId.value);
 
@@ -29,6 +29,7 @@ const schema = z.object({
   uang_masuk: z.number().min(0, "Uang masuk minimal 0"),
   uang_keluar: z.number().min(0, "Uang keluar minimal 0"),
   masalah: z.string().optional(),
+  rangkuman: z.string().optional(),
   saran: z.string().min(10, "Saran minimal 10 karakter"),
   is_partial: z.boolean(),
 });
@@ -55,6 +56,7 @@ const state = reactive<Partial<Schema>>({
   uang_masuk: undefined,
   uang_keluar: undefined,
   masalah: undefined,
+  rangkuman: undefined,
   saran: undefined,
   is_partial: false,
 });
@@ -116,14 +118,16 @@ const whatsappPreview = computed(() => {
   return `📊 *Laporan Keuangan Mingguan*\n${
     selectedUmkm.value.nama_usaha
   }\nPeriode: ${formatDate(state.periode_mulai!)} - ${formatDate(
-    state.periode_selesai!
+    state.periode_selesai!,
   )}\n\n💰 Uang Masuk: ${formatRupiah(
-    state.uang_masuk || 0
+    state.uang_masuk || 0,
   )}\n💸 Uang Keluar: ${formatRupiah(state.uang_keluar || 0)}\n${
     untungRugi.value >= 0 ? "📈" : "📉"
   } ${untungRugi.value >= 0 ? "Untung" : "Rugi"}: ${formatRupiah(
-    Math.abs(untungRugi.value)
-  )}${
+    Math.abs(untungRugi.value),
+  )}
+\n\n📝 *Rangkuman:*\n${state.rangkuman || "-"}
+  ${
     state.masalah ? `\n\n⚠️ *Masalah:*\n${state.masalah}` : ""
   }\n\n💡 *Saran:*\n${state.saran || "-"}`;
 });
@@ -146,6 +150,7 @@ onMounted(async () => {
       state.uang_masuk = Number(r.uang_masuk || 0);
       state.uang_keluar = Number(r.uang_keluar || 0);
       state.masalah = r.masalah || undefined;
+      state.rangkuman = r.rangkuman || undefined;
       state.saran = r.saran || undefined;
       state.is_partial = !!r.is_partial;
     } catch (err: any) {
@@ -181,13 +186,13 @@ const { data: prevReportsData, refresh: refreshPrevReports } =
       const { data } = await (supabase as any)
         .from("weekly_reports")
         .select(
-          "periode_mulai, periode_selesai, uang_masuk, uang_keluar, masalah, saran"
+          "periode_mulai, periode_selesai, uang_masuk, uang_keluar, masalah,rangkuman, saran",
         )
         .eq("umkm_id", state.umkm_id)
         .order("periode_mulai", { ascending: false })
         .limit(8);
       return data || [];
-    }
+    },
   );
 
 const prevReports = computed(() => prevReportsData.value || []);
@@ -206,12 +211,12 @@ const aiPrompt = computed(() => {
 
   const lines: string[] = [];
   lines.push(
-    `UMKM: ${selectedUmkm.value.nama_usaha} (Pemilik: ${selectedUmkm.value.nama_pemilik})`
+    `UMKM: ${selectedUmkm.value.nama_usaha} (Pemilik: ${selectedUmkm.value.nama_pemilik})`,
   );
   lines.push(
     `Periode laporan: ${state.periode_mulai || "-"} — ${
       state.periode_selesai || "-"
-    }`
+    }`,
   );
   lines.push(`Uang Masuk: ${fmt(state.uang_masuk || 0)}`);
   lines.push(`Uang Keluar: ${fmt(state.uang_keluar || 0)}`);
@@ -220,7 +225,7 @@ const aiPrompt = computed(() => {
       state.uang_masuk && state.uang_keluar
         ? fmt((state.uang_masuk || 0) - (state.uang_keluar || 0))
         : "-"
-    }\n`
+    }\n`,
   );
 
   if ((prevReports.value || []).length) {
@@ -231,8 +236,8 @@ const aiPrompt = computed(() => {
       const ur = masuk - keluar;
       lines.push(
         `${idx + 1}. ${r.periode_mulai} — ${r.periode_selesai}: Masuk ${fmt(
-          masuk
-        )}, Keluar ${fmt(keluar)}, Untung/Rugi ${fmt(ur)}`
+          masuk,
+        )}, Keluar ${fmt(keluar)}, Untung/Rugi ${fmt(ur)}`,
       );
     });
   } else {
@@ -262,7 +267,7 @@ const aiPrompt = computed(() => {
       "- Bahasa Indonesia sangat sederhana\n" +
       "- Seperti ngobrol dengan teman\n" +
       "- Jangan panjang dan jangan formal\n" +
-      "- Harus enak di-copy paste ke WhatsApp"
+      "- Harus enak di-copy paste ke WhatsApp",
   );
 
   return lines.join("\n");
@@ -291,6 +296,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         uang_masuk: event.data.uang_masuk,
         uang_keluar: event.data.uang_keluar,
         masalah: event.data.masalah || null,
+        rangkuman: event.data.rangkuman || null,
         saran: event.data.saran,
         is_partial: event.data.is_partial,
       };
@@ -319,6 +325,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         uang_masuk: event.data.uang_masuk,
         uang_keluar: event.data.uang_keluar,
         masalah: event.data.masalah || null,
+        rangkuman: event.data.rangkuman || null,
         saran: event.data.saran,
         is_partial: event.data.is_partial,
       });
@@ -569,6 +576,16 @@ useHead({
               </div>
 
               <div class="space-y-6">
+                <UFormField label="Rangkuman" name="rangkuman">
+                  <UTextarea
+                    v-model="state.rangkuman"
+                    placeholder="Minggu ini Warung Pak Budi untung Rp400.000. Turun banyak dari minggu terakhir yang Rp800.000"
+                    :rows="4"
+                    class="w-full"
+                    autoresize
+                  />
+                </UFormField>
+
                 <UFormField
                   label="Masalah yang Ditemukan (Opsional)"
                   name="masalah"
