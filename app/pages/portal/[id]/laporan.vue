@@ -221,7 +221,7 @@ useHead({
           </div>
 
           <!-- Financial Summary -->
-          <div class="grid grid-cols-3 gap-4 mb-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div class="text-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
               <div class="text-sm text-gray-600 dark:text-gray-400">Masuk</div>
               <div class="font-bold text-emerald-600">{{ fmtMoney(report.uang_masuk) }}</div>
