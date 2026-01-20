@@ -33,6 +33,14 @@ const links = [
       },
     },
     {
+      label: "Hutang",
+      icon: "i-lucide-receipt",
+      to: "/dashboard/hutang",
+      onSelect: () => {
+        open.value = false;
+      },
+    },
+    {
       label: "Laporan",
       to: "/dashboard/laporan",
       icon: "i-lucide-file-text",

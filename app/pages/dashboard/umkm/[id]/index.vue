@@ -212,6 +212,12 @@ function sendWhatsapp() {
   window.open(`https://wa.me/${no}?text=${msg}`, "_blank");
 }
 
+function copyPortalLink() {
+  const link = `${window.location.origin}/portal/${id}`;
+  navigator.clipboard.writeText(link);
+  toast.add({ title: "Link Portal Disalin!", color: "success" });
+}
+
 const columnFilters = ref([] as any[]);
 
 const searchQuery = computed({
@@ -300,6 +306,32 @@ useHead({
             </div>
             <div class="text-sm">
               Catatan: <span class="font-mono">{{ umkmData?.catatan }}</span>
+            </div>
+
+            <!-- Portal Link -->
+            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div class="text-sm text-blue-700 dark:text-blue-300 font-medium mb-2">🔗 Link Portal Client</div>
+              <div class="flex items-center gap-2">
+                <input
+                  type="text"
+                  :value="`${window?.location?.origin || ''}/portal/${id}`"
+                  readonly
+                  class="flex-1 text-xs font-mono bg-white dark:bg-gray-800 border rounded px-2 py-1 truncate"
+                />
+                <UButton
+                  icon="i-heroicons-clipboard-document"
+                  size="xs"
+                  variant="soft"
+                  @click="copyPortalLink"
+                />
+              </div>
+              <NuxtLink
+                :to="`/portal/${id}`"
+                target="_blank"
+                class="text-xs text-blue-600 hover:underline mt-2 inline-block"
+              >
+                Preview Portal →
+              </NuxtLink>
             </div>
 
             <div class="mt-4 p-3 bg-elevated rounded-lg border">
