@@ -422,6 +422,115 @@ const openWa = (plan?: string) => {
         </section>
       </Transition>
 
+      <!-- NEW FEATURE: PORTAL CLIENT -->
+      <Transition name="fade-up" appear>
+        <section class="mt-16 md:mt-32 px-2">
+          <!-- Gunakan style yang sama dengan Pricing/Testimonial (glassmorphism) agar senada -->
+          <div class="relative rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md p-8 md:p-12 text-left shadow-2xl">
+            <!-- Background Glow halus -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full -z-10"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <UBadge
+                  color="primary"
+                  variant="subtle"
+                  size="md"
+                  class="rounded-full px-3 py-1 text-[10px] font-bold mb-4"
+                >
+                  FITUR BARU 🚀
+                </UBadge>
+                <h2 class="text-2xl md:text-4xl font-bold text-foreground mb-4 leading-tight">
+                  Pantau Bisnis <br/> <span class="text-primary">Kapan Saja</span>
+                </h2>
+                <p class="text-muted-foreground text-sm md:text-base leading-relaxed mb-6">
+                  Tidak perlu tunggu balasan admin. Cek laporan keuangan, riwayat pembayaran, dan data hutang pelanggan langsung dari HP Anda.
+                </p>
+                
+                <div class="space-y-4">
+                  <div class="flex items-center gap-3 text-foreground/90 text-sm">
+                    <div class="p-2 rounded-lg bg-primary/10">
+                      <UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-primary" />
+                    </div>
+                    <span>Grafik Untung/Rugi Real-time</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-foreground/90 text-sm">
+                     <div class="p-2 rounded-lg bg-primary/10">
+                      <UIcon name="i-heroicons-document-arrow-down" class="w-5 h-5 text-primary" />
+                    </div>
+                    <span>Download Laporan Excel</span>
+                  </div>
+                   <div class="flex items-center gap-3 text-foreground/90 text-sm">
+                     <div class="p-2 rounded-lg bg-primary/10">
+                      <UIcon name="i-heroicons-link" class="w-5 h-5 text-primary" />
+                     </div>
+                    <span>Akses Mudah via Link (Tanpa Login)</span>
+                  </div>
+                </div>
+
+                <div class="mt-8">
+                  <UButton
+                    size="xl"
+                    color="primary"
+                    variant="solid"
+                    class="rounded-xl font-bold px-8 shadow-lg shadow-primary/20"
+                    @click="openWa('Portal Client')"
+                  >
+                    Tanya Fitur Portal
+                  </UButton>
+                </div>
+              </div>
+
+              <!-- Visual mock yang lebih simple dan clean -->
+              <div class="relative mt-8 md:mt-0">
+                <div class="absolute inset-0 bg-primary/20 blur-2xl rounded-full transform rotate-6 scale-90"></div>
+                <!-- Card Portal Preview -->
+                <div class="relative bg-background border border-border/50 rounded-2xl p-5 shadow-2xl rotate-1 hover:rotate-0 transition-all duration-500 max-w-sm mx-auto">
+                   <!-- Fake Header -->
+                  <div class="flex items-center justify-between mb-6 pb-4 border-b border-border/50">
+                    <div class="flex items-center gap-3">
+                       <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                         <UIcon name="i-heroicons-building-storefront" class="w-4 h-4 text-primary" />
+                       </div>
+                       <div>
+                         <div class="h-2 w-20 bg-foreground/20 rounded mb-1"></div>
+                         <div class="h-1.5 w-12 bg-muted-foreground/20 rounded"></div>
+                       </div>
+                    </div>
+                    <div class="h-6 w-16 bg-primary/10 rounded-full"></div>
+                  </div>
+                  
+                  <!-- Fake Stats -->
+                  <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="bg-primary/5 rounded-xl p-3 border border-primary/10">
+                      <div class="h-1.5 w-16 bg-primary/30 rounded mb-2"></div>
+                      <div class="h-4 w-20 bg-primary rounded"></div>
+                    </div>
+                     <div class="bg-muted/5 rounded-xl p-3 border border-border/30">
+                      <div class="h-1.5 w-16 bg-muted-foreground/30 rounded mb-2"></div>
+                      <div class="h-4 w-10 bg-foreground/50 rounded"></div>
+                    </div>
+                  </div>
+
+                  <!-- Fake Chart -->
+                  <div class="bg-muted/5 rounded-xl p-4 border border-border/30 h-32 flex items-end justify-between gap-1">
+                      <div class="w-full bg-primary/20 rounded-t h-[40%]"></div>
+                      <div class="w-full bg-primary/30 rounded-t h-[60%]"></div>
+                      <div class="w-full bg-primary/40 rounded-t h-[30%]"></div>
+                      <div class="w-full bg-primary/60 rounded-t h-[70%]"></div>
+                      <div class="w-full bg-primary rounded-t h-[50%] relative">
+                        <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-foreground text-background text-[8px] py-0.5 px-1.5 rounded font-bold">
+                          1.5jt
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </Transition>
+
       <!-- PRICING SECTION -->
       <Transition name="fade-up" appear>
         <section ref="pricingSection" class="mt-16 md:mt-32 px-2">
@@ -657,7 +766,8 @@ const openWa = (plan?: string) => {
         </section>
       </Transition>
 
-      <!-- BENEFIT SECTION -->
+      
+
       <Transition name="fade-up" appear>
         <section
           class="mt-12 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12 text-left px-2"
